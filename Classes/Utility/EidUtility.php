@@ -1,10 +1,11 @@
 <?php
 namespace SJBR\SrFreecap\Utility;
+
 /***************************************************************
  * Copyright notice
  *
  * 2010 Daniel Lienert <daniel@lienert.cc>, Michael Knoll <mimi@kaktusteam.de>
- * 2012-2015 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ * 2012-2019 Stanislas Rolland <typo3(arobas)sjbr.ca>
  * All rights reserved
  *
  *
@@ -255,7 +256,7 @@ class EidUtility {
 	 * @return \SJBR\SrFreecap\Utility\EidDispatcher
 	 */
 	protected function setVendorName($vendorName) {
-		$this->vendorName = htmlspecialchars((string)$vendorName);
+		$this->vendorName = 'SJBR';
 		return $this;
 	}
 
@@ -264,7 +265,7 @@ class EidUtility {
 	 * @return \SJBR\SrFreecap\Utility\EidDispatcher
 	 */
 	protected function setExtensionName($extensionName) {
-		$this->extensionName = htmlspecialchars((string)$extensionName);
+		$this->extensionName = 'SrFreecap';
 		return $this;
 	}
 
