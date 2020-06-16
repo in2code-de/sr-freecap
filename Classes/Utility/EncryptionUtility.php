@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Utility;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -26,9 +26,7 @@ namespace SJBR\SrFreecap\Utility;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
-/**
- * Encryption utility
- */
+
 class EncryptionUtility
 {
 	/**
@@ -45,7 +43,7 @@ class EncryptionUtility
 	public static function encrypt($string)
 	{
 		if (in_array('openssl', get_loaded_extensions())) {
-			$encryptionAlgorithm = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['encryptionAlgorithm'];
+			$encryptionAlgorithm = strtolower($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['encryptionAlgorithm']);
 			$availableAlgorithms = openssl_get_cipher_methods(true);
 			if (in_array($encryptionAlgorithm, $availableAlgorithms)) {
 				$key = md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'], true);
@@ -74,12 +72,17 @@ class EncryptionUtility
 	public static function decrypt($cypher)
 	{
 		if (in_array('openssl', get_loaded_extensions())) {
-			$encryptionAlgorithm = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['encryptionAlgorithm'];
-			$key = md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'], true);
-			$salt = isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['salt']) ? trim($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['salt']) : self::SALT;
-			$hash = hash('sha256', $salt . $key . $salt);
-			$key = substr($hash, 0, 32);
-			$string = trim(openssl_decrypt(base64_decode($cypher[0]), $encryptionAlgorithm, $key, OPENSSL_RAW_DATA, base64_decode($cypher[1])));
+			$encryptionAlgorithm = strtolower($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['encryptionAlgorithm']);
+			$availableAlgorithms = openssl_get_cipher_methods(true);
+			if (in_array($encryptionAlgorithm, $availableAlgorithms)) {
+				$key = md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'], true);
+				$salt = isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['salt']) ? trim($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['salt']) : self::SALT;
+				$hash = hash('sha256', $salt . $key . $salt);
+				$key = substr($hash, 0, 32);
+				$string = trim(openssl_decrypt(base64_decode($cypher[0]), $encryptionAlgorithm, $key, OPENSSL_RAW_DATA, base64_decode($cypher[1])));
+			} else {
+				$string = base64_decode($cypher[0]);
+			}
 		} else {
 			$string = base64_decode($cypher[0]);
 		}
