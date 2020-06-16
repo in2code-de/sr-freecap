@@ -67,11 +67,7 @@ plugin.tx_srfreecap {
 	accessibleOutputImage = EXT:sr_freecap/Resources/Public/Images/audio.png
 
     view {
-	 # cat=plugin.tx_srfreecap/file; type=string; label=Path to template root (FE)
-	templateRootPath = EXT:sr_freecap/Resources/Private/Templates/
 	 # cat=plugin.tx_srfreecap/file; type=string; label=Path to template partials (FE)
 	partialRootPath = EXT:sr_freecap/Resources/Private/Partials/
-	 # cat=plugin.tx_srfreecap/file; type=string; label=Path to template layouts (FE)
-	layoutRootPath = EXT:sr_freecap/Resources/Private/Layouts/
     }
 }

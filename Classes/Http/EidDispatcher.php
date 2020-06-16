@@ -5,7 +5,7 @@ namespace SJBR\SrFreecap\Http;
  * Copyright notice
  *
  * 2010 Daniel Lienert <daniel@lienert.cc>, Michael Knoll <mimi@kaktusteam.de>
- * 2012-2019 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ * 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  * All rights reserved
  *
  *
@@ -29,13 +29,13 @@ namespace SJBR\SrFreecap\Http;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Error\Http\BadRequestException;
 use TYPO3\CMS\Core\Http\NullResponse;
+use TYPO3\CMS\Core\Localization\Locales;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Extbase\Core\Bootstrap;
 use TYPO3\CMS\Extbase\Mvc\Dispatcher;
-use TYPO3\CMS\Extbase\Mvc\Web\Request;
+use TYPO3\CMS\Extbase\Mvc\Web\RequestInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Response;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -61,12 +61,12 @@ class EidDispatcher
 	/**
 	 * @var string
 	 */
-	protected $vendorName;
+	protected $vendorName = 'SJBR';
 
 	/**
 	 * @var string
 	 */
-	protected $extensionName;
+	protected $extensionName = 'SrFreecap';
 
 	/**
 	 * @var string
@@ -92,11 +92,6 @@ class EidDispatcher
 	 * @var array
 	 */
 	protected $arguments = [];
-
-	/**
-	 * @var integer
-	 */
-	protected $pageUid;
 
 	/**
 	 * Constructor
@@ -134,13 +129,11 @@ class EidDispatcher
 		$request = $this->buildRequest();
 		$response = $this->objectManager->get(Response::class);
 		$dispatcher = $this->objectManager->get(Dispatcher::class);
+		$dispatcher->dispatch($request, $response);
 		try {
 			$dispatcher->dispatch($request, $response);
 		} catch (\Exception $e) {
 			throw new BadRequestException('An argument is missing or invalid', 1394587024);
-		}
-		if (isset($this->getTypoScriptFrontendController()->fe_user)) {
-			$this->getTypoScriptFrontendController()->fe_user->storeSessionData();
 		}
 		// Output was already sent
 		return new NullResponse();
@@ -153,10 +146,11 @@ class EidDispatcher
 	 */
 	protected function initTypoScriptConfiguration()
 	{
-		$this->getTypoScriptFrontendController()->type = 0;
+		$controller = $this->getTypoScriptFrontendController();
+		$controller->type = 0;
 		$context = GeneralUtility::makeInstance(Context::class);
-		$this->getTypoScriptFrontendController()->rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $this->getTypoScriptFrontendController()->id, $this->getTypoScriptFrontendController()->MP, $context)->get();
-		$this->getTypoScriptFrontendController()->getConfigArray();
+		$controller->rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $controller->id, $controller->MP, $context)->get();
+		$controller->getConfigArray();
 		return $this;
 	}
 
@@ -167,8 +161,11 @@ class EidDispatcher
 	 */
 	protected function initLanguage()
 	{
-		$this->getTypoScriptFrontendController()->settingLanguage();
-		$this->getTypoScriptFrontendController()->settingLocale();
+		$controller = $this->getTypoScriptFrontendController();
+		$controller->settingLanguage();
+		$siteLanguage = $controller->getLanguage();
+		$locales = GeneralUtility::makeInstance(Locales::class);
+		$locales->setSystemLocaleFromSiteLanguage($siteLanguage);
 		return $this;
 	}
 
@@ -179,11 +176,10 @@ class EidDispatcher
 	 */
 	protected function buildRequest()
 	{
-		$request = $this->objectManager->get(Request::class);
-		$request->setControllerVendorName($this->vendorName);
-		$request->setControllerExtensionName($this->extensionName);
+		$controllerClassName = $this->vendorName . '\\' . $this->extensionName . '\\' . 'Controller' . '\\' . $this->pluginName . 'Controller';
+		$request = $this->objectManager->get(RequestInterface::class, $controllerClassName);
+		$request->setControllerObjectName($controllerClassName);
 		$request->setPluginName($this->pluginName);
-		$request->setControllerName($this->controllerName);
 		$request->setControllerActionName($this->actionName);
 		$request->setFormat($this->formatName);
 		$request->setArguments($this->arguments);
@@ -202,10 +198,8 @@ class EidDispatcher
 		} else {
 			$this->setRequestArgumentsFromGetPost();
 		}
-		return $this->setVendorName($this->requestArguments['vendorName'])
-			->setExtensionName($this->requestArguments['extensionName'])
-			->setPluginName($this->requestArguments['pluginName'])
-			->setControllerName($this->requestArguments['controllerName'])
+		return $this->setPluginName($this->requestArguments['pluginName'])
+			->setControllerName()
 			->setActionName($this->requestArguments['actionName'])
 			->setFormatName($this->requestArguments['formatName'])
 			->setArguments($this->requestArguments['arguments']);
@@ -229,7 +223,7 @@ class EidDispatcher
 	 */
 	protected function setRequestArgumentsFromGetPost()
 	{
-		$validArguments = array('vendorName', 'extensionName', 'pluginName', 'controllerName', 'actionName', 'formatName', 'arguments');
+		$validArguments = ['pluginName', 'actionName', 'formatName', 'arguments'];
 		foreach ($validArguments as $argument) {
 			if (GeneralUtility::_GP($argument)) {
 				$this->requestArguments[$argument] = GeneralUtility::_GP($argument);
@@ -243,42 +237,21 @@ class EidDispatcher
 	}
 
 	/**
-	 * @param string $vendorName
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
-	 */
-	protected function setVendorName($vendorName)
-	{
-		$this->vendorName = 'SJBR';
-		return $this;
-	}
-
-	/**
-	 * @param string $extensionName
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
-	 */
-	protected function setExtensionName($extensionName)
-	{
-		$this->extensionName = 'SrFreecap';
-		return $this;
-	}
-
-	/**
 	 * @param string $pluginName
 	 * @return \SJBR\SrFreecap\Http\EidDispatcher
 	 */
-	protected function setPluginName($pluginName = '')
+	protected function setPluginName($pluginName = 'ImageGenerator')
 	{
 		$this->pluginName = htmlspecialchars((string)$pluginName);
 		return $this;
 	}
 
 	/**
-	 * @param string $controllerName
 	 * @return \SJBR\SrFreecap\Http\EidDispatcher
 	 */
-	protected function setControllerName($controllerName = '')
+	protected function setControllerName()
 	{
-		$this->controllerName = htmlspecialchars((string)$controllerName);
+		$this->controllerName = $this->pluginName;
 		return $this;
 	}
 
@@ -286,7 +259,7 @@ class EidDispatcher
 	 * @param string $actionName
 	 * @return \SJBR\SrFreecap\Http\EidDispatcher
 	 */
-	protected function setActionName($actionName = 'index')
+	protected function setActionName($actionName = 'show')
 	{
 		$this->actionName = htmlspecialchars((string)$actionName);
 		return $this;

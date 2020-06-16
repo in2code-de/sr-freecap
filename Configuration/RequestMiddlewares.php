@@ -11,7 +11,6 @@
  */
 return [
     'frontend' => [
-        /** internal: do not use or reference this middleware in your own code, as this will be possibly be removed */
         'sjbr/sr-freecap/eidsr' => [
             'target' => \SJBR\SrFreecap\Middleware\EidHandler::class,
             'after' => [
@@ -19,10 +18,6 @@ return [
                 'typo3/cms-frontend/authentication',
                 'typo3/cms-frontend/backend-user-authentication',
                 'typo3/cms-frontend/site',
-            ],
-            'before' => [
-                'typo3/cms-frontend/page-resolver',
-                'typo3/cms-frontend/static-route-resolver'
             ]
         ]
     ]

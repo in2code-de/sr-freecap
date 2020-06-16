@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Controller;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -28,6 +28,8 @@ namespace SJBR\SrFreecap\Controller;
  */
 
 use SJBR\SrFreecap\Domain\Repository\WordRepository;
+use SJBR\SrFreecap\View\AudioPlayer\PlayMp3;
+use SJBR\SrFreecap\View\AudioPlayer\PlayWav;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /**
@@ -64,6 +66,17 @@ class AudioPlayerController extends ActionController
 	public function playAction()
 	{
 		$word = $this->wordRepository->getWord();
+		$format = $this->request->getFormat();
+		if ($format === 'mp3') {
+			$this->view = $this->objectManager->get(PlayMp3::class);
+		} else if ($format === 'wav') {
+			$this->view = $this->objectManager->get(PlayWav::class);
+		} else {
+			throw new \Exception('Unknow audio format ' . $format);
+		}
+        $this->setViewConfiguration($this->view);
+        $this->view->setControllerContext($this->controllerContext);
 		$this->view->assign('word', $word);
+		$this->view->render();
 	}
 }

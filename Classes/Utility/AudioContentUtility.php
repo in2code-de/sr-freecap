@@ -1,43 +1,41 @@
 <?php
 namespace SJBR\SrFreecap\Utility;
-/***************************************************************
-*  Copyright notice
-*
-*  (c) 2012-2013 Stanislas Rolland <typo3(arobas)sjbr.ca>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*  A copy is found in the textfile GPL.txt and important notices to the license
-*  from the author is found in LICENSE.txt distributed with these scripts.
-*
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+
+/*
+ *  Copyright notice
+ *
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *  A copy is found in the textfile GPL.txt and important notices to the license
+ *  from the author is found in LICENSE.txt distributed with these scripts.
+ *
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ */
 /**
  * Utility dealing with audio content
- *
- * @author	Stanislas Rolland	<typo3(arobas)sjbr.ca>
  */
-class AudioContentUtility {
-
+class AudioContentUtility
+{
 	/**
 	 * Joins multiple audio files
 	 *
 	 * @param array $files: the array of audio files
 	 * @param string $format: the audio format	 
-	 *
 	 * @return string the contents of joined audio file
 	 */
 	public static function joinAudioFiles($files, $format = 'wav') {
@@ -64,11 +62,11 @@ class AudioContentUtility {
 	 * @license	GPL 2 (http://www.gnu.org/licenses/gpl.html)
 	 * @author	Andreas Gohr <gohr@cosmocode.de>
 	 *
-	 * @param	array		$wavs: the array of wav files
-	 *
-	 * @return	string		the contents of joined wav file
+	 * @param array $wavs: the array of wav files
+	 * @return string the contents of joined wav file
 	 */
-	protected static function joinWavFiles ($wavs) {
+	protected static function joinWavFiles($wavs)
+	{
 		$fields = join('/', array(
 			'H8Format',
 			'H8Subchunk1ID',
@@ -108,22 +106,18 @@ class AudioContentUtility {
 	}
 
 	/**
-	 * Joins multiple wav files
+	 * Joins multiple mp3 files
 	 *
-	 * All wave files need to have the same format and need to be uncompressed.
+	 * All mp3 files need to have the same format and need to be uncompressed.
 	 * The headers of the last file will be used (with recalculated datasize
 	 * of course)
 	 *
-	 * @link	http://ccrma.stanford.edu/CCRMA/Courses/422/projects/WaveFormat/
-	 * @link	http://www.thescripts.com/forum/thread3770.html
-	 * @license	GPL 2 (http://www.gnu.org/licenses/gpl.html)
-	 * @author	Andreas Gohr <gohr@cosmocode.de>
-	 *
-	 * @param	array		$wavs: the array of wav files
-	 *
-	 * @return	string		the contents of joined wav file
+	 * @link http://www.theblog.ca/merge-mp3s-php
+	 * @param array $files: the array of mp3 files
+	 * @return string the contents of joined mp3 file
 	 */
-	protected static function joinMp3Files ($files) {
+	protected static function joinMp3Files($files)
+	{
 		$data = '';
 		foreach ($files as $file) {
 			$mp3 = new Mp3ContentUtility($file);
@@ -131,6 +125,4 @@ class AudioContentUtility {
 		}
 		return $data;
 	}
-
 }
-?>

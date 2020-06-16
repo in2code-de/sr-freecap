@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\ViewHelpers;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2013-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -49,7 +49,7 @@ class AudioViewHelper extends AbstractTagBasedViewHelper
 	protected $pluginName = 'tx_srfreecap';
 
 	/**
-	 * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
+	 * @var ConfigurationManagerInterface
 	 */
 	protected $configurationManager;
 
@@ -80,16 +80,12 @@ class AudioViewHelper extends AbstractTagBasedViewHelper
 		if (!is_object($this->getTypoScriptFrontendController()) || !isset($this->getTypoScriptFrontendController()->fe_user)) {
 			throw new SessionNotFoundException('No frontend user found in session!');
 		}
-
 		$value = '';
 		// Get the plugin configuration
 		$settings = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS, $this->extensionName, $this->pluginName);
 		// Get the translation view helper
 		$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 		$translator = $objectManager->get(TranslateViewHelper::class);
-		// Get browser info: in IE 8, we will use a simple link, as dynamic insertion of object element gives unpredictable results
-        $browserInfo = GeneralUtility::getIndpEnv('HTTP_USER_AGENT');
-        $browerIsIE8 = strpos($browserInfo, 'MSIE 8') !== false;
 		// Generate the icon
 		if ($settings['accessibleOutput'] && (int)$GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem']) {
 			$context = GeneralUtility::makeInstance(Context::class);
@@ -99,10 +95,7 @@ class AudioViewHelper extends AbstractTagBasedViewHelper
 			$urlParams = [
 				'eIDSR' => 'sr_freecap_EidDispatcher',
 				'id' => $GLOBALS['TSFE']->id,
-				'vendorName' => 'SJBR',
-				'extensionName' => $this->extensionName,
 				'pluginName' => 'AudioPlayer',
-				'controllerName' => 'AudioPlayer',
 				'actionName' => 'play',
 				'formatName' => $browerIsIE8 ? 'mp3' : 'wav',
 				'L' => $languageAspect->getId()
@@ -112,37 +105,17 @@ class AudioViewHelper extends AbstractTagBasedViewHelper
 			}
 			$audioURL = $siteURL . 'index.php?' . ltrim(GeneralUtility::implodeArrayForUrl('', $urlParams), '&');
 			if ($settings['accessibleOutputImage']) {
-				if ($browerIsIE8) {
-					$value = '<a href="' . $audioURL . '&set=' . rand()
-						. '" title="' . $translator->render('click_here_accessible') . '">'
-						. '<img alt="' . $translator->render('click_here_accessible') . '"'
-						. ' src="' . $siteURL . PathUtility::stripPathSitePrefix(GeneralUtility::getFileAbsFileName($settings['accessibleOutputImage'])) . '"'
-						. $this->getClassAttribute('image-accessible', $suffix) . ' />'
-						. '</a>';
-				} else {
-					$value = '<input type="image" alt="' . $translator->render('click_here_accessible') . '"'
-						. ' title="' . $translator->render('click_here_accessible') . '"'
-						. ' src="' . $siteURL . PathUtility::stripPathSitePrefix(GeneralUtility::getFileAbsFileName($settings['accessibleOutputImage'])) . '"'
-						. ' onclick="' . $this->extensionName . '.playCaptcha(\'' . $fakeId . '\', \'' . $audioURL . '\', \'' . $translator->render('noPlayMessage') . '\');return false;" style="cursor: pointer;"'
-						. $this->getClassAttribute('image-accessible', $suffix) . ' />';
-				}
+				$value = '<input type="image" alt="' . $translator->render('click_here_accessible') . '"'
+					. ' title="' . $translator->render('click_here_accessible') . '"'
+					. ' src="' . $siteURL . PathUtility::stripPathSitePrefix(GeneralUtility::getFileAbsFileName($settings['accessibleOutputImage'])) . '"'
+					. ' onclick="' . $this->extensionName . '.playCaptcha(\'' . $fakeId . '\', \'' . $audioURL . '\', \'' . $translator->render('noPlayMessage') . '\');return false;" style="cursor: pointer;"'
+					. $this->getClassAttribute('image-accessible', $suffix) . ' />';
 			} else {
-				if ($browerIsIE8) {
-					$value = '<span id="tx_srfreecap_captcha_playLink_' . $fakeId . '"'
-						. $this->getClassAttribute('accessible-link', $suffix) . '>'
-						. $translator->render('click_here_accessible_before_link')
-						. '<a href="' . $audioURL . '&set=' . rand() . '"'
-						. ' title="' . $translator->render('click_here_accessible') . '">'
-						. $translator->render('click_here_accessible_link')
-						. '</a>'
-						. $translator->render('click_here_accessible_after_link') . '</span>';
-				} else {
-					$value = '<span id="tx_srfreecap_captcha_playLink_' . $fakeId . '"'
-						. $this->getClassAttribute('accessible-link', $suffix) . '>' . $translator->render('click_here_accessible_before_link')
-						. '<a onClick="' . $this->extensionName . '.playCaptcha(\'' . $fakeId.'\', \'' . $audioURL . '\', \'' . $translator->render('noPlayMessage') . '\');" style="cursor: pointer;" title="' . $translator->render('click_here_accessible') . '">'
-						. $translator->render('click_here_accessible_link') . '</a>'
-						. $translator->render('click_here_accessible_after_link') . '</span>';
-				}
+				$value = '<span id="tx_srfreecap_captcha_playLink_' . $fakeId . '"'
+					. $this->getClassAttribute('accessible-link', $suffix) . '>' . $translator->render('click_here_accessible_before_link')
+					. '<a onClick="' . $this->extensionName . '.playCaptcha(\'' . $fakeId.'\', \'' . $audioURL . '\', \'' . $translator->render('noPlayMessage') . '\');" style="cursor: pointer;" title="' . $translator->render('click_here_accessible') . '">'
+					. $translator->render('click_here_accessible_link') . '</a>'
+					. $translator->render('click_here_accessible_after_link') . '</span>';
 			}
 			$value .= '<span' . $this->getClassAttribute('accessible', $suffix) . ' id="tx_srfreecap_captcha_playAudio_' . $fakeId . '"></span>';
 		}

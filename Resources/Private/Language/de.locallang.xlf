@@ -20,8 +20,8 @@
 				<target>Kleine ASCII-Buchstaben (a-z)</target>
 			</trans-unit>
 			<trans-unit id="ANSI-extended-ASCII-lowercase-letters" xml:space="preserve" approved="yes">
-				<source>ANSI-extended ASCII lowercase letters (a-z,ß-ÿ)</source>
-				<target>Kleine ANSI-erweiterte ASCII-Buchstaben (a-z,ß-ÿ)</target>
+				<source>ISO 8859-2 lowercase letters (a-z,ß-ţ)</source>
+				<target>Kleine ISO 8859-2-Buchstaben (a-z,ß-ţ)</target>
 			</trans-unit>
 			<trans-unit id="characterWidth" xml:space="preserve" approved="yes">
 				<source>Character width:</source>

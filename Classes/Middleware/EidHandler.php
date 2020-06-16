@@ -1,6 +1,6 @@
 <?php
-declare(strict_types = 1);
-namespace SJBR\SrFreecap\Middleware;
+
+declare(strict_types=1);
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -15,15 +15,18 @@ namespace SJBR\SrFreecap\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace SJBR\SrFreecap\Middleware;
+
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Exception;
-use TYPO3\CMS\Core\Http\Dispatcher;
+use TYPO3\CMS\Core\Http\DispatcherInterface;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Lightweight alternative to regular frontend requests; used when $_GET[eID] is set.
@@ -34,6 +37,19 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class EidHandler implements MiddlewareInterface
 {
+    /**
+     * @var DispatcherInterface
+     */
+    protected $dispatcher;
+
+	/**
+	 * @param DispatcherInterface $dispatcher
+	 */
+	public function __construct(DispatcherInterface $dispatcher)
+	{
+		$this->dispatcher = $dispatcher;
+	}
+	
     /**
      * Dispatches the request to the corresponding eID class or eID script
      *
@@ -54,20 +70,18 @@ class EidHandler implements MiddlewareInterface
         ob_clean();
 
         /** @var Response $response */
-        $response = GeneralUtility::makeInstance(Response::class);
+        $response = new Response();
 
-        if (empty($eID) || !isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['eIDSR_include'][$eID])) {
+        if (empty($eID) || !isset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['eIDSR_include'][$eID])) {
             return $response->withStatus(404, 'eIDSR not registered');
         }
 
-        $configuration = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sr_freecap']['eIDSR_include'][$eID];
+        $configuration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['eIDSR_include'][$eID];
 
         // Simple check to make sure that it's not an absolute file (to use the fallback)
         if (strpos($configuration, '::') !== false || is_callable($configuration)) {
-            /** @var Dispatcher $dispatcher */
-            $dispatcher = GeneralUtility::makeInstance(Dispatcher::class);
             $request = $request->withAttribute('target', $configuration);
-            return $dispatcher->dispatch($request) ?? new NullResponse();
+            return $this->dispatcher->dispatch($request) ?? new NullResponse();
         }
         return new NullResponse();
     }

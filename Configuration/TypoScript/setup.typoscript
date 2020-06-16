@@ -32,17 +32,9 @@ plugin.tx_srfreecap {
 		salutation = {$plugin.tx_srfreecap.salutation}
 	}
 	view {
-		templateRootPaths {
-			0 = EXT:sr_freecap/Resources/Private/Templates/
-			1 = {$plugin.tx_srfreecap.view.templateRootPath}
-		}
 		partialRootPaths {
 			0 = EXT:sr_freecap/Resources/Private/Partials/
 			1 = {$plugin.tx_srfreecap.view.partialRootPath}
-		}
-		layoutRootPaths {
-			0 = EXT:sr_freecap/Resources/Private/Layouts/
-			1 = {$plugin.tx_srfreecap.view.layoutRootPath}
 		}
 	}
 	_CSS_DEFAULT_STYLE (

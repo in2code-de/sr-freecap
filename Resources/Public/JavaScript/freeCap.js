@@ -1,7 +1,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2007-2013 Stanislas Rolland <typo3(arobas)sjbr.ca>
+*  (c) 2007-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -56,8 +56,6 @@
 		 * @param string wavUrl: url of the wave file generating script
 		 * @param string noPlayMessage: message to be displayed if the audio file cannot be rendered
 		 * @return void
-		 *
-		 * Note: In order for this to work with IE8, [SYS][cookieDomain] must be set using the TYPO3 Install Tool
 		 */
 		playCaptcha: function (id, wavUrl, noPlayMessage) {
 			if (document.getElementById) {
@@ -83,15 +81,6 @@
 					var objectElement = document.createElement('object');
 					objectElement.setAttribute('id', 'tx_srfreecap_captcha_playAudio_object' + id);
 					objectElement.setAttribute('type', 'audio/mpeg');
-                                        if (document.all && !document.addEventListener) {
-                                        	if (!document.querySelector) {
-							// IE7 only
-							objectElement.setAttribute('filename', url);
-                                                } else {
-                                                	// IE8 only
-                                                	objectElement.setAttribute('data', url);
-                                                }
-                                        }
 					theAudio.appendChild(objectElement);
 					objectElement.style.height = 0;
 					objectElement.style.width = 0;

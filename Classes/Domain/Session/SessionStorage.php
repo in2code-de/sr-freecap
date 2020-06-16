@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Domain\Session;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2017 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -28,15 +28,13 @@ namespace SJBR\SrFreecap\Domain\Session;
  */
 
 use TYPO3\CMS\Core\Session\Backend\Exception\SessionNotFoundException;
+use TYPO3\CMS\Core\SingletonInterface;
 
 /**
  * Session storage
- *
- * @author Stanislas Rolland <typo3@sjbr.ca>
  */
-class SessionStorage implements \TYPO3\CMS\Core\SingletonInterface
+class SessionStorage implements SingletonInterface
 {
-	
 	const SESSIONNAMESPACE = 'tx_srfreecap';
  
 	/**
@@ -59,7 +57,7 @@ class SessionStorage implements \TYPO3\CMS\Core\SingletonInterface
 	public function writeToSession($object)
 	{
 		$sessionData = serialize($object);
-		$this->getFrontendUser()->setKey('ses', self::SESSIONNAMESPACE, $sessionData);
+		$this->getFrontendUser()->setAndSaveSessionData(self::SESSIONNAMESPACE, $sessionData);
 		return $this;
 	}
  
@@ -70,7 +68,7 @@ class SessionStorage implements \TYPO3\CMS\Core\SingletonInterface
 	 */
 	public function cleanUpSession()
 	{
-		$this->getFrontendUser()->setKey('ses', self::SESSIONNAMESPACE, NULL);
+		$this->getFrontendUser()->setAndSaveSessionData(self::SESSIONNAMESPACE, null);
 		return $this;
 	}
 

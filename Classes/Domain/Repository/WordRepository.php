@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Domain\Repository;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2015 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -27,45 +27,51 @@ namespace SJBR\SrFreecap\Domain\Repository;
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use SJBR\SrFreecap\Domain\Model\Word;
+use SJBR\SrFreecap\Domain\Session\SessionStorage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
+
 /**
  * Word repository in session storage
  */
-class WordRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class WordRepository extends Repository
 {
- 
 	/**
 	 * The session sorage handler
-	 * @var \SJBR\SrFreecap\Domain\Session\SessionStorage
+	 * @var SessionStorage
 	 */
-	protected $sessionStorage = NULL;
+	protected $sessionStorage = null;
 
 	/**
 	 * Constructor
 	 *
-	 * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
+	 * @param ObjectManagerInterface $objectManager
 	 */
-	public function __construct(\TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager = NULL)
+	public function __construct(ObjectManagerInterface $objectManager = null)
 	{
 		// Get the object manager
-		if ($objectManager === NULL) {
-			$objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\ObjectManager');
+		if (!($objectManager instanceof ObjectManagerInterface)) {
+			$objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
 		}
 		parent::__construct($objectManager);
 		// Get an instance of the session storage handler
-		$this->sessionStorage = $this->objectManager->get('SJBR\\SrFreecap\\Domain\\Session\\SessionStorage');
+		$this->sessionStorage = $this->objectManager->get(SessionStorage::class);
 	}
  
 	/**
 	 * Returns the object stored in the user's PHP session
 	 *
-	 * @return \SJBR\SrFreecap\Domain\Model\Word the stored object
+	 * @return Word the stored object
 	 */
 	public function getWord()
 	{
 		$word = $this->sessionStorage->restoreFromSession();
 		// If no Word object is found in session data, initialize a new one
 		if (!is_object($word)) {
-			$word = $this->objectManager->get('SJBR\\SrFreecap\\Domain\\Model\\Word');
+			$word = $this->objectManager->get(Word::class);
 		}
 		return $word;
 	}
@@ -73,10 +79,10 @@ class WordRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 	/**
 	 * Writes the object into the PHP session
 	 *
-	 * @param \SJBR\SrFreecap\Domain\Model\Word the object to be stored
-	 * @return \SJBR\SrFreecap\Domain\Repository\WordRepository
+	 * @param Word the object to be stored
+	 * @return WordRepository
 	 */
-	public function setWord(\SJBR\SrFreecap\Domain\Model\Word $object)
+	public function setWord(Word $object)
 	{
 		$this->sessionStorage->writeToSession($object);
 		return $this;
@@ -85,7 +91,7 @@ class WordRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 	/**
 	 * Cleans up the session: removes the stored object from the PHP session
 	 *
-	 * @return \SJBR\SrFreecap\Domain\Repository\WordRepository
+	 * @return WordRepository
 	 */
 	public function cleanUpWord()
 	{

@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\ViewHelpers;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2013-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -95,7 +95,7 @@ class ImageViewHelper extends AbstractTagBasedViewHelper
 		$pageRenderer->addJsFooterFile(PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath($this->extensionKey)) . 'Resources/Public/JavaScript/freeCap.js');
 
 		// Disable caching
-		$this->getTypoScriptFrontendController()->no_cache = 1;
+		$this->getTypoScriptFrontendController()->no_cache = true;
 
 		// Get the translation view helper
 		$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
@@ -109,10 +109,7 @@ class ImageViewHelper extends AbstractTagBasedViewHelper
 		$urlParams = [
 			'eIDSR' => 'sr_freecap_EidDispatcher',
 			'id' => $this->getTypoScriptFrontendController()->id,
-			'vendorName' => 'SJBR',
-			'extensionName' => 'SrFreecap',
 			'pluginName' => 'ImageGenerator',
-			'controllerName' => 'ImageGenerator',
 			'actionName' => 'show',
 			'formatName' => 'png',
 			'L' => $languageAspect->getId()

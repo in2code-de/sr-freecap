@@ -1,11 +1,10 @@
 <?php
-declare(encoding='ISO-8859-2');
 namespace SJBR\SrFreecap\Domain\Model;
 
 /*
  *  Copyright notice
  *
- *  (c) 2012-2018 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -198,7 +197,6 @@ class Font extends AbstractEntity
 				$startCharacter = 'a';
 				break;
 			case 2:
-				// Note: This script must be iso-8859-2-encoded
 				$characters = 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o'
 					.',p,q,r,s,t,u,v,w,x,y,z,-,-,-,-,-'
 					.',-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-'
@@ -206,9 +204,9 @@ class Font extends AbstractEntity
 					.',-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-'
 					.',-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-'
 					.',-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-'
-					.',-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,ß'
-					.',à,á,â,ã,ä,å,æ,ç,è,é,ê,ë,ì,í,î,ï'
-					.',ğ,ñ,ò,ó,ô,õ,ö,-,ø,ù,ú,û,ü,ı,ş,ÿ';
+					.',-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,ÃŸ'
+					.',Ã ,Ã¡,Ã¢,Äƒ,Ã¤,Ã,Ä‡,Ã§,Ä,Ã©,Ä™,Ã«,Ä›,Ã,Ã®,Ä'
+					.',Ä‘,Å„,Åˆ,Ã³,Ã´,Å‘,Ã¶,-,Å™,Å¯,Ãº,Å±,Ã¼,Ã½,Å£,-';
 				$startCharacter = 'a';
 				break;
 			case 0:

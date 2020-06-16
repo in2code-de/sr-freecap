@@ -5,7 +5,7 @@ namespace SJBR\SrFreecap\Utility;
  *  Copyright notice
  *
  *  (c) 2009 Sebastian Kurfürst <sebastian@typo3.org>
- *  (c) 2013-2018 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2013-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -30,6 +30,7 @@ use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\Locales;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -117,18 +118,20 @@ class LocalizationUtility
         ];
         if (TYPO3_MODE === 'FE') {
             $tsfe = static::getTypoScriptFrontendController();
-            $siteLanguage = self::getCurrentSiteLanguage();
-
-            // Get values from site language, which takes precedence over TypoScript settings
-            if ($siteLanguage instanceof SiteLanguage) {
-                $languageKeys['languageKey'] = $siteLanguage->getTypo3Language();
-            } elseif (isset($tsfe->config['config']['language'])) {
-                $languageKeys['languageKey'] = $tsfe->config['config']['language'];
-                if (isset($tsfe->config['config']['language_alt'])) {
-                    $languageKeys['alternativeLanguageKeys'][] = $tsfe->config['config']['language_alt'];
-                }
-            }
-
+            $pageId = $tsfe->id;
+            $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+            $currentSite = $siteFinder->getSiteByPageId($pageId);
+            $languageAspect = GeneralUtility::makeInstance(Context::class)->getAspect('language');
+            // Current language
+            $currentSiteLanguageId = $languageAspect->getId();
+            $currentSiteLanguage = $currentSite->getLanguageById((int)$currentSiteLanguageId);
+            $languageKeys['languageKey'] = $currentSiteLanguage->getTypo3Language();
+            // Alternative languages
+			$alternativeLanguageIds = $languageAspect->getFallbackChain();
+			foreach ($alternativeLanguageIds as $alternativeLanguageId) {
+				$alternativeLanguage = $currentSite->getLanguageById((int)$alternativeLanguageId);
+				$languageKeys['alternativeLanguageKeys'][] = $alternativeLanguage->getTypo3Language();
+			}
             if (empty($languageKeys['alternativeLanguageKeys'])) {
                 $locales = GeneralUtility::makeInstance(Locales::class);
                 if (in_array($languageKeys['languageKey'], $locales->getLocales())) {
@@ -137,26 +140,10 @@ class LocalizationUtility
                     }
                 }
             }
-        } elseif (!empty($GLOBALS['BE_USER']->uc['lang'])) {
+        } else {
             $languageKeys['languageKey'] = $GLOBALS['BE_USER']->uc['lang'];
-        } elseif (!empty(static::getLanguageService()->lang)) {
-            $languageKeys['languageKey'] = static::getLanguageService()->lang;
         }
         return $languageKeys;
-    }
-
-    /**
-     * Returns the currently configured "site language" if a site is configured (= resolved)
-     * in the current request.
-     *
-     * @return SiteLanguage|null
-     */
-    protected static function getCurrentSiteLanguage(): ?SiteLanguage
-    {
-        if ($GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
-            return $GLOBALS['TYPO3_REQUEST']->getAttribute('language', null);
-        }
-        return null;
     }
 
     /**
@@ -165,13 +152,5 @@ class LocalizationUtility
     protected static function getTypoScriptFrontendController()
     {
         return $GLOBALS['TSFE'];
-    }
-
-    /**
-     * @return LanguageService
-     */
-    protected static function getLanguageService()
-    {
-        return $GLOBALS['LANG'];
     }
 }

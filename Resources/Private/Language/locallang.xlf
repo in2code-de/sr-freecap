@@ -19,7 +19,7 @@
 				<source>ASCII lowercase letters (a-z)</source>
 			</trans-unit>
 			<trans-unit id="ANSI-extended-ASCII-lowercase-letters" xml:space="preserve">
-				<source>ANSI-extended ASCII lowercase letters (a-z,ß-ÿ)</source>
+				<source>ISO 8859-2 lowercase letters (a-z,ß-ţ)</source>
 			</trans-unit>
 			<trans-unit id="characterWidth" xml:space="preserve">
 				<source>Character width:</source>

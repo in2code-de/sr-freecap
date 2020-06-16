@@ -1,9 +1,10 @@
 <?php
 namespace SJBR\SrFreecap\Domain\Model;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -26,75 +27,83 @@ namespace SJBR\SrFreecap\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+
 /**
  * Word object
- *
- * @author Stanislas Rolland <typo3@sjbr.ca>
  */
-class Word extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
+class Word extends AbstractEntity
+{
+    /**
+     * @var string
+     */
+    protected $wordHash;
 
-	/**
-	 * @var string
-	 */
-	protected $wordHash;
+    /**
+     * @var string
+     */
+    protected $hashFunction;
 
-	/**
-	 * @var string
-	 */
-	protected $hashFunction;
+    /**
+     * @var array
+     */
+    protected $wordCypher;
 
-	/**
-	 * @var array
-	 */
-	protected $wordCypher;
+    /**
+     * @var int
+     */
+    protected $attempts;
 
-	/**
-	 * @var int
-	 */
-	protected $attempts;
+    public function __construct(
+            $wordHash = '',
+            $hashFunction = 'md5',
+            $wordCypher = array(),
+            $attempts = 0
+        )
+    {
+        $this->setWordHash($wordHash);
+        $this->setHashFunction($hashFunction);
+        $this->setWordCypher($wordCypher);
+        $this->setAttempts($attempts);
+    }
 
-	public function __construct(
-			$wordHash = '',
-			$hashFunction = 'md5',
-			$wordCypher = array(),
-			$attempts = 0
-		) {
-		$this->setWordHash($wordHash);
-		$this->setHashFunction($hashFunction);
-		$this->setWordCypher($wordCypher);
-		$this->setAttempts($attempts);
-	}
+    public function setWordHash($wordHash)
+    {
+        $this->wordHash = (string)$wordHash;
+    }
 
-	public function setWordHash($wordHash) {
-		$this->wordHash = (string)$wordHash;
-	}
-
-	public function getWordHash() {
-		return $this->wordHash;
-	}
+    public function getWordHash()
+    {
+        return $this->wordHash;
+    }
                                                                                                     
-	public function setHashFunction($hashFunction) {
-		$this->hashFunction = (string)$hashFunction;
-	}
+    public function setHashFunction($hashFunction)
+    {
+        $this->hashFunction = (string)$hashFunction;
+    }
                                                                                                                    
-	public function getHashFunction() {
-		return $this->hashFunction;
-	}
+    public function getHashFunction()
+    {
+        return $this->hashFunction;
+    }
 
-	public function setWordCypher($wordCypher) {                                      
-		$this->wordCypher = (array)$wordCypher;
-	}
+    public function setWordCypher($wordCypher)
+    {                                      
+        $this->wordCypher = (array)$wordCypher;
+    }
 
-	public function getWordCypher() {                                                   
-		return $this->wordCypher;
-	}
+    public function getWordCypher()
+    {                                                   
+        return $this->wordCypher;
+    }
 
-	public function setAttempts($attempts) {
-		$this->attempts = (int)$attempts;
-	}
+    public function setAttempts($attempts)
+    {
+        $this->attempts = (int)$attempts;
+    }
 
-	public function getAttempts() {
-		return $this->attempts;
-	}
+    public function getAttempts()
+    {
+        return $this->attempts;
+    }
 }
-?>

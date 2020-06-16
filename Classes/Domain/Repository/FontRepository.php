@@ -51,9 +51,11 @@ class FontRepository extends Repository
 	 */
 	 public function writeFontFile(Font $font)
 	 {
-	 	$relativeFileName = 'uploads/' . ExtensionManagementUtility::getCN($this->extensionKey) . '/' . $font->getGdFontFilePrefix() . '_' .  GeneralUtility::shortMD5($font->getGdFontData()) . '.gdf';
-		if (GeneralUtility::writeFile(Environment::getPublicPath() . '/' . $relativeFileName, $font->getGdFontData())) {
-			$font->setGdFontFileName($relativeFileName);
+	 	$directory = Environment::getPublicPath() . '/' . 'uploads/' . ExtensionManagementUtility::getCN($this->extensionKey) . '/';
+	 	GeneralUtility::mkdir_deep($directory);
+	 	$fileName = $directory . $font->getGdFontFilePrefix() . '_' .  GeneralUtility::shortMD5($font->getGdFontData()) . '.gdf';
+		if (GeneralUtility::writeFile($fileName, $font->getGdFontData())) {
+			$font->setGdFontFileName($fileName);
 		}
 		return $this;
 	}

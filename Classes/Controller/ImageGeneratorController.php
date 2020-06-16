@@ -28,6 +28,7 @@ namespace SJBR\SrFreecap\Controller;
  */
 
 use SJBR\SrFreecap\Domain\Repository\WordRepository;
+use SJBR\SrFreecap\View\ImageGenerator\ShowPng;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -77,6 +78,9 @@ class ImageGeneratorController extends ActionController
 		// Which type of hash to use
 		// Store in session so can validate in form processor
 		$word->setHashFunction('md5');
+		$this->view = $this->objectManager->get(ShowPng::class);
+        $this->setViewConfiguration($this->view);
+        $this->view->setControllerContext($this->controllerContext);
 		$this->view->assign('word', $word);
 		// Adjust settings
 		$this->processSettings();
