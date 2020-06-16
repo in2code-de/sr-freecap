@@ -1,6 +1,7 @@
 2020-06-15  Stanislas Rolland  <typo32020(arobas)sjbr.ca>
 	* Resolves #90636: ConfigurationHelper Select EncryptionAlgorythm does not work
 	* Resolves #89735: RequestMiddlewares.php missing
+	* Update version to 2.5.4
 
 2019-07-19  Stanislas Rolland  <typo(arobas)sjbr.ca>
 	* Resolves Security Ticket#201907155760000027
