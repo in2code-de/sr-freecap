@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Utility;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2015 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -123,7 +123,7 @@ class ImageContentUtility {
 			}
 			$fontIndex = RandomContentUtility::getRandomNumberInRange(0, sizeof($fontLocations)-1);
 			$font = ImageLoadFont($fontLocations[$fontIndex]);
-			ImageString($image2, $font, $x_pos, $word_start_y, $word{$i}, $textColor2);
+			ImageString($image2, $font, $x_pos, $word_start_y, $word[$i], $textColor2);
 			$textFontWidths[$i] = $fontWidths[$fontIndex];
 			$x_pos += $textFontWidths[$i];
 		}

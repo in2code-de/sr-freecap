@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Controller;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -217,7 +217,7 @@ class ImageGeneratorController extends ActionController
 			$handle = fopen($this->settings['fontLocations'][$i],"r");
 			// Read header of GD font, up to char width
 			$c_wid = fread($handle,12);
-			$this->settings['fontWidths'][$i] = ord($c_wid{8})+ord($c_wid{9})+ord($c_wid{10})+ord($c_wid{11});
+			$this->settings['fontWidths'][$i] = ord($c_wid[8])+ord($c_wid[9])+ord($c_wid[10])+ord($c_wid[11]);
 			fclose($handle);
 		}
 		// Modify image width depending on maximum possible length of word

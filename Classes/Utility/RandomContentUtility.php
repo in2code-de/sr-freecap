@@ -1,37 +1,36 @@
 <?php
 namespace SJBR\SrFreecap\Utility;
-/***************************************************************
-*  Copyright notice
-*
-*  (c) 2012 Stanislas Rolland <typo3(arobas)sjbr.ca>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*  A copy is found in the textfile GPL.txt and important notices to the license
-*  from the author is found in LICENSE.txt distributed with these scripts.
-*
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+
+/*
+ *  Copyright notice
+ *
+ *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *  A copy is found in the textfile GPL.txt and important notices to the license
+ *  from the author is found in LICENSE.txt distributed with these scripts.
+ *
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ */
 /**
  * Random content utility
- *
- * @author Stanislas Rolland <typo3(arobas)sjbr.ca>
  */
-class RandomContentUtility {
-
+class RandomContentUtility
+{
 	/**
 	 * Returns a random number within the given range
 	 *
@@ -39,7 +38,8 @@ class RandomContentUtility {
 	 * @param int $max: the upper boundary of the range
 	 * @return int the generated number
 	 */
-	public static function getRandomNumberInRange ($min, $max) {
+	public static function getRandomNumberInRange($min, $max)
+	{
 		if ($min > $max) {
 			$newMin = $max;
 			$newMax = $min;
@@ -55,12 +55,12 @@ class RandomContentUtility {
 	 *
 	 * @param int $colorMaximumDarkness: maximum darkness along any dimension
 	 * @param int $colorMaximumLightness: maximum lightness along any dimension
-	 * @param boolean $darker: if TRUE, produce a possibly darker image by default
-	 *
+	 * @param boolean $darker: if true, produce a possibly darker image by default
 	 * @return array the random color
 	 */
-	public static function getRandomColor ($colorMaximumDarkness, $colorMaximumLightness, $darker = FALSE) {
-		$color = array();
+	public static function getRandomColor ($colorMaximumDarkness, $colorMaximumLightness, $darker = false)
+	{
+		$color = [];
 		if ($darker) {
 			// Needs darker colour..
 			$minimum = isset($colorMaximumDarkness) ? $colorMaximumDarkness : 10;
@@ -78,13 +78,14 @@ class RandomContentUtility {
 	/**
 	 * Returns a random word
 	 *
-	 * @param boolean $useWordsList: if TRUE, a word dictionary is used
+	 * @param boolean $useWordsList: if true, a word dictionary is used
 	 * @param string $wordsList: dictionary file location
-	 * @param boolean $numbersOnly: if TRUE, use only numbers
+	 * @param boolean $numbersOnly: if true, use only numbers
 	 *
 	 * @return string random word
 	 */
-	public static function getRandomWord($useWordsList = FALSE, $wordsList = '', $numbersOnly = FALSE, $maxWordLength = 6) {
+	public static function getRandomWord($useWordsList = false, $wordsList = '', $numbersOnly = false, $maxWordLength = 6)
+	{
 		if ($useWordsList && is_file($wordsList)) {
 			// Load dictionary and choose random word
 			// Keep dictionary in non-web accessible folder, or htaccess it
@@ -114,13 +115,12 @@ class RandomContentUtility {
 			for ($i = 0; $i < $wordlen; $i++) {
 				// Don't allow to start with 'vowel'
 				if (self::getRandomNumberInRange(0, 20) >= 10 && $i != 0) {
-					$word .= $vowels{self::getRandomNumberInRange(0, strlen($vowels)-1)};
+					$word .= $vowels[self::getRandomNumberInRange(0, strlen($vowels)-1)];
 				} else {
-					$word .= $consonants{self::getRandomNumberInRange(0, strlen($consonants)-1)};
+					$word .= $consonants[self::getRandomNumberInRange(0, strlen($consonants)-1)];
 				}
 			}
 		}
 		return $word;
 	}
 }
-?>
