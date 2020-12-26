@@ -1,3 +1,7 @@
+2020-12-26  Stanislas Rolland  <typo3AAAA(arobas)sjbr.ca>
+	* Resolves #93107: Audio content is output twice
+	* Update version to 2.6.2
+
 2020-11-22  Stanislas Rolland  <typo32020(arobas)sjbr.ca>
 	* Update version to 2.6.1
 

@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\View\AudioPlayer;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2013-2020 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  free software; you can redistribute it and/or modify
@@ -166,11 +166,11 @@ class AbstractPlayFormat implements ViewInterface
 	}
 
 	/**
-	 * Sends headers appropriate for wav content
+	 * Sends headers appropriate for audio content
 	 *
 	 * @param string $audioContent: the audio content that will be sent
 	 * @param string $mimeType: the audio mime type being used
-	 * @return	void
+	 * @return void
 	 */
 	protected function sendHeaders($audioContent, $mimeType = 'x-wav')
 	{
@@ -183,14 +183,13 @@ class AbstractPlayFormat implements ViewInterface
 		header('Cache-Control: no-cache, no-store, must-revalidate');
 		// Setting privacy policy header for IE in popup window
 		header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
-		echo $audioContent;
 	}
 
 	/**
-	 * Sends headers appropriate for wav content
+	 * Sends audio content
 	 *
 	 * @param string $audioContent: the audio content that will be sent
-	 * @return	void
+	 * @return void
 	 */
 	protected function sendAudioContent($audioContent)
 	{
