@@ -10,13 +10,13 @@
   "authors": [
     {
       "name": "Stanislas Rolland",
-      "homepage": "http://www.sjbr.ca",
+      "homepage": "https://www.sjbr.ca",
       "role": "Developer"
     }
   ],
-  "homepage": "https://forge.typo3.org/projects/extension-sr_freecap",
+  "homepage": "https://codeberg.org/sjbr/sr-freecap",
   "support": {
-	"issues": "https://forge.typo3.org/projects/extension-sr_freecap/issues"
+	"issues": "https://codeberg.org/sjbr/sr-freecap/issues"
   },
   "replace": {
 	"typo3-ter/sr-freecap": "self.version"
