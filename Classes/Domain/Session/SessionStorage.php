@@ -75,7 +75,7 @@ class SessionStorage implements SingletonInterface
 	/**
 	 * Gets a frontend user from TSFE->fe_user
 	 *
-	 * @return	\TYPO3\CMS\Frontend\Authentication\FrontendUserAuthtenication	The current frontend user object
+	 * @return	\TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication	The current frontend user object
 	 * @throws	SessionNotFoundException
 	 */
 	protected function getFrontendUser()
