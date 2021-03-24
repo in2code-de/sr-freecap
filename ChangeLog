@@ -1,3 +1,6 @@
+2021-03-24  Stanislas Rolland  <typo3AAAA(arobas)sjbr.ca>
+	* Resolves #93424: Audio Captcha without image is not accessible with tab
+
 2020-12-26  Stanislas Rolland  <typo3AAAA(arobas)sjbr.ca>
 	* Resolves #93107: Audio content is output twice
 	* Update version to 2.6.2

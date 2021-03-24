@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\ViewHelpers;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2013-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -113,7 +113,7 @@ class AudioViewHelper extends AbstractTagBasedViewHelper
 			} else {
 				$value = '<span id="tx_srfreecap_captcha_playLink_' . $fakeId . '"'
 					. $this->getClassAttribute('accessible-link', $suffix) . '>' . $translator->render('click_here_accessible_before_link')
-					. '<a onClick="' . $this->extensionName . '.playCaptcha(\'' . $fakeId.'\', \'' . $audioURL . '\', \'' . $translator->render('noPlayMessage') . '\');" style="cursor: pointer;" title="' . $translator->render('click_here_accessible') . '">'
+					. '<a href="#" onClick="' . $this->extensionName . '.playCaptcha(\'' . $fakeId.'\', \'' . $audioURL . '\', \'' . $translator->render('noPlayMessage') . '\');return false;" style="cursor: pointer;" title="' . $translator->render('click_here_accessible') . '">'
 					. $translator->render('click_here_accessible_link') . '</a>'
 					. $translator->render('click_here_accessible_after_link') . '</span>';
 			}
