@@ -28,5 +28,10 @@
     "psr-4": {
       "SJBR\\SrFreecap\\": "Classes/"
     }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "sr_freecap"
+    }
   }
 }
