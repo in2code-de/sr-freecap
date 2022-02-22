@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Utility;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2012-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -43,22 +43,22 @@ class EncryptionUtility
 	public static function encrypt($string)
 	{
 		if (in_array('openssl', get_loaded_extensions())) {
-			$encryptionAlgorithm = strtolower($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['encryptionAlgorithm']);
+			$encryptionAlgorithm = strtolower($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['encryptionAlgorithm'] ?? 'aes-256-cbc');
 			$availableAlgorithms = openssl_get_cipher_methods(true);
 			if (in_array($encryptionAlgorithm, $availableAlgorithms)) {
-				$key = md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'], true);
+				$key = md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] ?? 0, true);
 				$iv_size = openssl_cipher_iv_length($encryptionAlgorithm);
-				$salt = isset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['salt']) ? trim($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['salt']) : self::SALT;
+				$salt = (isset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['salt']) && trim($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['salt'])) ? trim($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['salt']) : self::SALT;
 				$hash = hash('sha256', $salt . $key . $salt);
 				$iv = substr($hash, strlen($hash) - $iv_size);
 				$key = substr($hash, 0, 32);
 				$string = openssl_encrypt($string, $encryptionAlgorithm, $key, OPENSSL_RAW_DATA, $iv);
-				$cypher = array(base64_encode($string), base64_encode($iv));
+				$cypher = [base64_encode($string), base64_encode($iv)];
 			} else {
-				$cypher = array(base64_encode($string));
+				$cypher = [base64_encode($string)];
 			}
 		} else {
-			$cypher = array(base64_encode($string));			
+			$cypher = [base64_encode($string)];			
 		}
 		return $cypher;
 	}
@@ -72,10 +72,10 @@ class EncryptionUtility
 	public static function decrypt($cypher)
 	{
 		if (in_array('openssl', get_loaded_extensions())) {
-			$encryptionAlgorithm = strtolower($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['encryptionAlgorithm']);
+			$encryptionAlgorithm = strtolower($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['encryptionAlgorithm'] ?? 'aes-256-cbc');
 			$availableAlgorithms = openssl_get_cipher_methods(true);
 			if (in_array($encryptionAlgorithm, $availableAlgorithms)) {
-				$key = md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'], true);
+				$key = md5($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] ?? 0, true);
 				$salt = isset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['salt']) ? trim($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['salt']) : self::SALT;
 				$hash = hash('sha256', $salt . $key . $salt);
 				$key = substr($hash, 0, 32);

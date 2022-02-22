@@ -21,12 +21,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Http\DispatcherInterface;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Lightweight alternative to regular frontend requests; used when $_GET[eID] is set.
@@ -56,7 +54,6 @@ class EidHandler implements MiddlewareInterface
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
-     * @throws Exception
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -71,18 +68,18 @@ class EidHandler implements MiddlewareInterface
 
         /** @var Response $response */
         $response = new Response();
-
         if (empty($eID) || !isset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['eIDSR_include'][$eID])) {
-            return $response->withStatus(404, 'eIDSR not registered');
+            $response = $response->withStatus(404, 'eIDSR not registered');
+        } else {
+			$configuration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['eIDSR_include'][$eID];
+			// Simple check to make sure that it's not an absolute file (to use the fallback)
+			if (strpos($configuration, '::') !== false || is_callable($configuration)) {
+				$frontendUser = $request->getAttribute('frontend.user');
+				$request = $request->withAttribute('target', $configuration);
+            	$response = $this->dispatcher->dispatch($request) ?? new NullResponse();
+            }
+            $response = new NullResponse();
         }
-
-        $configuration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['sr_freecap']['eIDSR_include'][$eID];
-
-        // Simple check to make sure that it's not an absolute file (to use the fallback)
-        if (strpos($configuration, '::') !== false || is_callable($configuration)) {
-            $request = $request->withAttribute('target', $configuration);
-            return $this->dispatcher->dispatch($request) ?? new NullResponse();
-        }
-        return new NullResponse();
+        return $response;
     }
 }

@@ -5,7 +5,7 @@ namespace SJBR\SrFreecap\Utility;
  *  Copyright notice
  *
  *  (c) 2009 Sebastian Kurfürst <sebastian@typo3.org>
- *  (c) 2013-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2013-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -27,6 +27,7 @@ namespace SJBR\SrFreecap\Utility;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\Locales;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
@@ -116,7 +117,9 @@ class LocalizationUtility
             'languageKey' => 'default',
             'alternativeLanguageKeys' => [],
         ];
-        if (TYPO3_MODE === 'FE') {
+        if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface
+            && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isFrontend()
+        ) {
             $tsfe = static::getTypoScriptFrontendController();
             $pageId = $tsfe->id;
             $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);

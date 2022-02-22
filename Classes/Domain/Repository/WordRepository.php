@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Domain\Repository;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2012-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -30,8 +30,6 @@ namespace SJBR\SrFreecap\Domain\Repository;
 use SJBR\SrFreecap\Domain\Model\Word;
 use SJBR\SrFreecap\Domain\Session\SessionStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
@@ -43,26 +41,19 @@ class WordRepository extends Repository
 	 * The session sorage handler
 	 * @var SessionStorage
 	 */
-	protected $sessionStorage = null;
+	protected $sessionStorage;
 
 	/**
 	 * Constructor
-	 *
-	 * @param ObjectManagerInterface $objectManager
 	 */
-	public function __construct(ObjectManagerInterface $objectManager = null)
+	public function __construct(SessionStorage $sessionStorage)
 	{
-		// Get the object manager
-		if (!($objectManager instanceof ObjectManagerInterface)) {
-			$objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
-		}
-		parent::__construct($objectManager);
 		// Get an instance of the session storage handler
-		$this->sessionStorage = $this->objectManager->get(SessionStorage::class);
+		$this->sessionStorage = $sessionStorage;
 	}
  
 	/**
-	 * Returns the object stored in the user's PHP session
+	 * Returns the object stored in the user's session
 	 *
 	 * @return Word the stored object
 	 */
@@ -71,13 +62,13 @@ class WordRepository extends Repository
 		$word = $this->sessionStorage->restoreFromSession();
 		// If no Word object is found in session data, initialize a new one
 		if (!is_object($word)) {
-			$word = $this->objectManager->get(Word::class);
+			$word = new Word();
 		}
 		return $word;
 	}
  
 	/**
-	 * Writes the object into the PHP session
+	 * Writes the object into the user's session
 	 *
 	 * @param Word the object to be stored
 	 * @return WordRepository
@@ -89,7 +80,7 @@ class WordRepository extends Repository
 	}
  
 	/**
-	 * Cleans up the session: removes the stored object from the PHP session
+	 * Cleans up the session: removes the stored object from the user's session
 	 *
 	 * @return WordRepository
 	 */

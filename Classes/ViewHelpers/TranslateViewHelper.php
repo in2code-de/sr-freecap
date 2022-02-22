@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\ViewHelpers;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2018 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2013-2022 Stanislas Rolland <typo3AAAA@sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -84,7 +84,7 @@ class TranslateViewHelper extends AbstractViewHelper
 	/**
 	 * @var array List of allowed suffixes
 	 */
-	protected $allowedSuffixes = array('formal', 'informal');
+	protected $allowedSuffixes = ['formal', 'informal'];
 
 	/**
 	 * @var ConfigurationManagerInterface
@@ -124,15 +124,9 @@ class TranslateViewHelper extends AbstractViewHelper
 		if ($this->hasArgument('key')) {
 			$key = $this->arguments['key'];
 		}
-		if ($this->hasArgument('default')) {
-			$default = $this->arguments['default'];
-		}
-		if ($this->hasArgument('htmlEscape')) {
-			$htmlEscape = $this->arguments['htmlEscape'];
-		}
-		if ($this->hasArgument('arguments')) {
-			$arguments = $this->arguments['arguments'];
-		}
+		$default = $this->hasArgument('default') ? $this->arguments['default'] : '';
+		$htmlEscape = $this->hasArgument('htmlEscape') ? $this->arguments['htmlEscape'] : false;
+		$arguments = $this->hasArgument('arguments') ? $this->arguments['arguments'] : [];
 		// If the suffix is allowed and we have a localized string for the desired salutation, we'll take that.
 		$settings = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS, $this->extensionName, $this->pluginName);
 		if (isset($settings['salutation']) && in_array($settings['salutation'], $this->allowedSuffixes, 1)) {

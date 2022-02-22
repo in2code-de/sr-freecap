@@ -53,7 +53,7 @@ class FontRepository extends Repository
 	 {
 	 	$directory = Environment::getPublicPath() . '/' . 'uploads/' . ExtensionManagementUtility::getCN($this->extensionKey) . '/';
 	 	GeneralUtility::mkdir_deep($directory);
-	 	$fileName = $directory . $font->getGdFontFilePrefix() . '_' .  GeneralUtility::shortMD5($font->getGdFontData()) . '.gdf';
+	 	$fileName = $directory . $font->getGdFontFilePrefix() . '_' .  md5($font->getGdFontData()) . '.gdf';
 		if (GeneralUtility::writeFile($fileName, $font->getGdFontData())) {
 			$font->setGdFontFileName($fileName);
 		}

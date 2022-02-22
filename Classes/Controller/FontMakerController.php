@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Controller;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2018 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2012-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -29,6 +29,7 @@ namespace SJBR\SrFreecap\Controller;
 
 use SJBR\SrFreecap\Domain\Model\Font;
 use SJBR\SrFreecap\Domain\Repository\FontRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /**
@@ -50,7 +51,7 @@ class FontMakerController  extends ActionController
 	public function newAction(Font $font = null)
 	{
 		if (!is_object($font)) {
-			$font = $this->objectManager->get(Font::class);
+			$font = new Font();
 		}
 		$this->view->assign('font', $font);
 	}	
@@ -66,7 +67,7 @@ class FontMakerController  extends ActionController
 		// Create the font data
 		$font->createGdFontFile();
 		// Store the GD font file
-		$fontRepository = $this->objectManager->get(FontRepository::class);
+		$fontRepository = GeneralUtility::makeInstance(FontRepository::class);
 		$fontRepository->writeFontFile($font);
 		$this->view->assign('font', $font);
 	}

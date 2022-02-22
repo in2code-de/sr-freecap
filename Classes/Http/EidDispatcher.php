@@ -5,7 +5,7 @@ namespace SJBR\SrFreecap\Http;
  * Copyright notice
  *
  * 2010 Daniel Lienert <daniel@lienert.cc>, Michael Knoll <mimi@kaktusteam.de>
- * 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ * 2012-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  * All rights reserved
  *
  *
@@ -26,6 +26,8 @@ namespace SJBR\SrFreecap\Http;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Error\Http\BadRequestException;
 use TYPO3\CMS\Core\Http\NullResponse;
@@ -35,9 +37,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Extbase\Core\Bootstrap;
 use TYPO3\CMS\Extbase\Mvc\Dispatcher;
-use TYPO3\CMS\Extbase\Mvc\Web\RequestInterface;
-use TYPO3\CMS\Extbase\Mvc\Web\Response;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -51,12 +51,6 @@ class EidDispatcher
 	 * @var array
 	 */
 	protected $requestArguments = [];
-
-	/**
-	 * Extbase Object Manager
-	 * @var ObjectManager
-	 */
-	protected $objectManager;
 
 	/**
 	 * @var string
@@ -94,23 +88,15 @@ class EidDispatcher
 	protected $arguments = [];
 
 	/**
-	 * Constructor
-	 *
-	 */
-	public function __construct()
-	{
-		$this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-	}
-
-	/**
 	 * Initializes and dispatches actions
-	 *
 	 * Call this function if you want to use this dispatcher "standalone"
+	 * @param ServerRequestInterface $request
+	 * @return Response
 	 */
-	public function initAndDispatch()
+	public function initAndDispatch($request)
 	{
-		return $this->initTypoScriptConfiguration()
-			->initLanguage()
+		return $this->initTypoScriptConfiguration($request)
+			->initLanguage($request)
 			->initCallArguments()
 			->dispatch();
 	}
@@ -118,23 +104,27 @@ class EidDispatcher
 	/**
 	 * Builds an extbase context and returns the response
 	 *
+	 * @return ResponseInterface
 	 */
 	protected function dispatch()
 	{
-		$bootstrap = $this->objectManager->get(Bootstrap::class);
+		$bootstrap = GeneralUtility::makeInstance(Bootstrap::class);
 		$configuration['vendorName'] = $this->vendorName;
 		$configuration['extensionName'] = $this->extensionName;
 		$configuration['pluginName'] = $this->pluginName;
 		$bootstrap->initialize($configuration);
 		$request = $this->buildRequest();
-		$response = $this->objectManager->get(Response::class);
-		$dispatcher = $this->objectManager->get(Dispatcher::class);
-		$dispatcher->dispatch($request, $response);
-		try {
-			$dispatcher->dispatch($request, $response);
+		/*try {
+if (isset($GLOBALS['BE_USER'])) {
+	$GLOBALS['BE_USER']->writelog(3, 1, 0, 0, '[SrFreecap]-avant: ' . serialize($GLOBALS['TSFE']->fe_user->getSession()), [$GLOBALS['BE_USER']->user['username']]);
+}*/
+			$response = GeneralUtility::makeInstance(Dispatcher::class)->dispatch($request);
+/*if (isset($GLOBALS['BE_USER'])) {
+	$GLOBALS['BE_USER']->writelog(3, 1, 0, 0, '[SrFreecap]-apres: ' . serialize($GLOBALS['TSFE']->fe_user->getSession()), [$GLOBALS['BE_USER']->user['username']]);
+}
 		} catch (\Exception $e) {
 			throw new BadRequestException('An argument is missing or invalid', 1394587024);
-		}
+		}*/
 		// Output was already sent
 		return new NullResponse();
 	}
@@ -142,13 +132,14 @@ class EidDispatcher
 	/**
 	 * Get the TypoScript configuration
 	 *
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @param ServerRequestInterface $request
+	 * @return EidDispatcher
 	 */
-	protected function initTypoScriptConfiguration()
+	protected function initTypoScriptConfiguration($request)
 	{
-		$controller = $this->getTypoScriptFrontendController();
+		$controller = $request->getAttribute('frontend.controller');
 		$controller->type = 0;
-		$context = GeneralUtility::makeInstance(Context::class);
+		$context = $controller->getContext();
 		$controller->rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $controller->id, $controller->MP, $context)->get();
 		$controller->getConfigArray();
 		return $this;
@@ -157,12 +148,12 @@ class EidDispatcher
 	/**
 	 * Set  language and locale
 	 *
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @param ServerRequestInterface $request
+	 * @return EidDispatcher
 	 */
-	protected function initLanguage()
+	protected function initLanguage($request)
 	{
-		$controller = $this->getTypoScriptFrontendController();
-		$controller->settingLanguage();
+		$controller = $request->getAttribute('frontend.controller');
 		$siteLanguage = $controller->getLanguage();
 		$locales = GeneralUtility::makeInstance(Locales::class);
 		$locales->setSystemLocaleFromSiteLanguage($siteLanguage);
@@ -172,12 +163,12 @@ class EidDispatcher
 	/**
 	 * Build a request object
 	 *
-	 * @return \TYPO3\CMS\Extbase\Mvc\Web\Request $request
+	 * @return Request $request
 	 */
 	protected function buildRequest()
 	{
 		$controllerClassName = $this->vendorName . '\\' . $this->extensionName . '\\' . 'Controller' . '\\' . $this->pluginName . 'Controller';
-		$request = $this->objectManager->get(RequestInterface::class, $controllerClassName);
+		$request = GeneralUtility::makeInstance(Request::class, $controllerClassName);
 		$request->setControllerObjectName($controllerClassName);
 		$request->setPluginName($this->pluginName);
 		$request->setControllerActionName($this->actionName);
@@ -189,7 +180,7 @@ class EidDispatcher
 	/**
 	 * Prepare the call arguments
 	 *
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @return EidDispatcher
 	 */
 	public function initCallArguments() {
 		$request = GeneralUtility::_GP('request');
@@ -202,7 +193,7 @@ class EidDispatcher
 			->setControllerName()
 			->setActionName($this->requestArguments['actionName'])
 			->setFormatName($this->requestArguments['formatName'])
-			->setArguments($this->requestArguments['arguments']);
+			->setArguments($this->requestArguments['arguments'] ?? []);
 	}
 
 	/**
@@ -225,9 +216,9 @@ class EidDispatcher
 	{
 		$validArguments = ['pluginName', 'actionName', 'formatName', 'arguments'];
 		foreach ($validArguments as $argument) {
-			if (GeneralUtility::_GP($argument)) {
+			if (GeneralUtility::_GP($argument) ?? false) {
 				$this->requestArguments[$argument] = GeneralUtility::_GP($argument);
-			} else if (GeneralUtility::_GP('amp;' . $argument)) {
+			} else if (GeneralUtility::_GP('amp;' . $argument) ?? false) {
 				// Something went wrong...
 				$this->requestArguments[$argument] = GeneralUtility::_GP('amp;' . $argument);
 			} else if ($argument !== 'arguments') {
@@ -238,7 +229,7 @@ class EidDispatcher
 
 	/**
 	 * @param string $pluginName
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @return EidDispatcher
 	 */
 	protected function setPluginName($pluginName = 'ImageGenerator')
 	{
@@ -247,7 +238,7 @@ class EidDispatcher
 	}
 
 	/**
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @return EidDispatcher
 	 */
 	protected function setControllerName()
 	{
@@ -257,7 +248,7 @@ class EidDispatcher
 
 	/**
 	 * @param string $actionName
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @return EidDispatcher
 	 */
 	protected function setActionName($actionName = 'show')
 	{
@@ -267,7 +258,7 @@ class EidDispatcher
 
 	/**
 	 * @param string $formatName
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @return EidDispatcher
 	 */
 	protected function setFormatName($formatName = 'txt')
 	{
@@ -277,23 +268,15 @@ class EidDispatcher
 
 	/**
 	 * @param array $arguments
-	 * @return \SJBR\SrFreecap\Http\EidDispatcher
+	 * @return EidDispatcher
 	 */
 	protected function setArguments($arguments)
 	{
 		if (!is_array($arguments)) {
-			$this->arguments = array();
+			$this->arguments = [];
 		} else {
 			$this->arguments = $arguments;
 		}
 		return $this;
 	}
-
-    /**
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
 }

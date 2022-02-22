@@ -1,10 +1,10 @@
 <?php
 namespace SJBR\SrFreecap\Validation\Validator;
 
-/***************************************************************
+/*
  *  Copyright notice
  *
- *  (c) 2012-2018 Stanislas Rolland <typo3@sjbr.ca>
+ *  (c) 2012-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -22,11 +22,10 @@ namespace SJBR\SrFreecap\Validation\Validator;
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ */
 
 use SJBR\SrFreecap\Domain\Repository\WordRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Validation\Validator\AbstractValidator;
 
 /**
@@ -63,8 +62,7 @@ class CaptchaValidator extends AbstractValidator
 		// This validator needs a frontend user session
 		if (is_object($GLOBALS ['TSFE']) && isset($GLOBALS ['TSFE']->fe_user)) {
 			// Get session data
-			$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-			$wordRepository = $objectManager->get(WordRepository::class);
+			$wordRepository = GeneralUtility::makeInstance(WordRepository::class);
 			$wordObject = $wordRepository->getWord();
 			$wordHash = $wordObject->getWordHash();
 			// Check the word hash against the stored hash value

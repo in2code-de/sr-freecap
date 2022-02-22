@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Utility;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2012-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -28,7 +28,6 @@ namespace SJBR\SrFreecap\Utility;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Utility for making GD fonts
@@ -78,10 +77,9 @@ class FontMakingUtility
 			$gifObjArray[$ic . '0.']['maxWidth'] = $width;
 			$gifObjArray[$ic . '0.']['offset'] = (($ic-1) * $width + $hOffset) . ',' . $vertOffset;
 		}
-		$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-		$gifCreator = $objectManager->get(GifBuilderUtility::class);
-		if ($GLOBALS['TYPO3_CONF_VARS']['GFX']['gdlib']) {
-			$gifCreator->start($gifObjArray, array());
+		$gifCreator = GeneralUtility::makeInstance(GifBuilderUtility::class);
+		if ($GLOBALS['TYPO3_CONF_VARS']['GFX']['gdlib'] ?? false) {
+			$gifCreator->start($gifObjArray, []);
 			return $gifCreator->gifBuild();
 		} else {
 			return false;

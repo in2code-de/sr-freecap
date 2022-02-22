@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\View\AudioPlayer;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2020 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
+ *  (c) 2013-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  free software; you can redistribute it and/or modify
@@ -28,8 +28,7 @@ namespace SJBR\SrFreecap\View\AudioPlayer;
 use SJBR\SrFreecap\Utility\AudioContentUtility;
 use SJBR\SrFreecap\Utility\EncryptionUtility;
 use SJBR\SrFreecap\Utility\LocalizationUtility;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
-use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
+use TYPO3Fluid\Fluid\View\ViewInterface;
 
 /**
  * Abstract class for rendering an audio version of the CAPTCHA
@@ -50,14 +49,6 @@ class AbstractPlayFormat implements ViewInterface
 	 * @var \TYPO3\CMS\Core\Domain\Model\Word
 	 */
 	protected $word;
-
-	/**
-	 * Sets the current controller context
-	 *
-	 * @param ControllerContext $controllerContext
-	 * @return void
-	 */
-	public function setControllerContext(ControllerContext $controllerContext) {}
 
 	/**
 	 * Add a variable to the view data collection.
@@ -89,17 +80,6 @@ class AbstractPlayFormat implements ViewInterface
 	}
 
 	/**
-	 * Tells if the view implementation can render the view for the given context.
-	 *
-	 * @param ControllerContext $controllerContext
-	 * @return boolean TRUE if the view has something useful to display, otherwise FALSE
-	 */
-	public function canRender(ControllerContext $controllerContext)
-	{
-	 	return true;
-	}
-
-	/**
 	 * Renders the audio version of captcha
 	 *
 	 * @return string The audio output to play
@@ -119,13 +99,6 @@ class AbstractPlayFormat implements ViewInterface
 		// Return the audio content
 		return $audioContent;
 	}
-
-	/**
-	 * Initializes this view.
-	 *
-	 * @return void
-	 */
-	public function initializeView() {}
 
 	/**
 	 * Gets the word that was stored in session data
@@ -157,7 +130,7 @@ class AbstractPlayFormat implements ViewInterface
 		// Assemble the file names
 		foreach ($letters as $letter){
 			// Word lists are encoded in ISO-8859-1 (possibly in ISO-8859-2?)
-			$file = $voicesDirectory . ($GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem'] ? utf8_encode($letter) : $letter) . '.' . $extension;
+			$file = $voicesDirectory . ((isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem']) && $GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem']) ? utf8_encode($letter) : $letter) . '.' . $extension;
 			if (is_file($file)) {
 				$letterRenderingFiles[] = $file;
 			}
@@ -195,4 +168,32 @@ class AbstractPlayFormat implements ViewInterface
 	{
 		echo $audioContent;
 	}
+
+    /**
+     * Renders a given section.
+     *
+     * @param string $sectionName Name of section to render
+     * @param array $variables The variables to use
+     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @return string rendered template for the section
+     * @throws Exception\InvalidSectionException
+     */
+    public function renderSection($sectionName, array $variables = [], $ignoreUnknown = false)
+    {
+    	return '';
+    }
+
+    /**
+     * Renders a partial.
+     *
+     * @param string $partialName
+     * @param string $sectionName
+     * @param array $variables
+     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @return string
+     */
+    public function renderPartial($partialName, $sectionName, array $variables, $ignoreUnknown = false)
+    {
+    	return '';
+    }
 }

@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\View\ImageGenerator;
 /*
  *  Copyright notice
  *
- *  (c) 2005-2018 Stanislas Rolland <typo3(arobas)sjbr.ca>
+ *  (c) 2005-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -58,10 +58,8 @@ use SJBR\SrFreecap\Utility\EncryptionUtility;
 use SJBR\SrFreecap\Utility\ImageContentUtility;
 use SJBR\SrFreecap\Utility\RandomContentUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
-use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3Fluid\Fluid\View\ViewInterface;
 
 /**
  * Renders a png image of the CAPTCHA
@@ -92,14 +90,6 @@ class ShowPng implements ViewInterface
 	 * @var array Configuration of this view
 	 */
 	protected $settings;
-
-	/**
-	 * Sets the current controller context
-	 *
-	 * @param ControllerContext $controllerContext
-	 * @return void
-	 */
-	public function setControllerContext(ControllerContext $controllerContext) {}
 
 	/**
 	 * Add a variable to the view data collection.
@@ -136,27 +126,6 @@ class ShowPng implements ViewInterface
 	}
 
 	/**
-	 * Tells if the view implementation can render the view for the given context.
-	 *
-	 * @param ControllerContext $controllerContext
-	 * @return boolean true if the view has something useful to display, otherwise false
-	 * @api
-	 */
-	public function canRender(ControllerContext $controllerContext)
-	{
-	 	 return true;
-	}
-
-	/**
-	 * Initializes this view.
-	 *
-	 * @return void
-	 * @api
-	 */
-	public function initializeView() {
-	}
-
-	/**
 	 * Renders the captcha image
 	 *
 	 * @return string empty string (the image is sent here)
@@ -180,8 +149,7 @@ class ShowPng implements ViewInterface
 				$this->word->setWordCypher([]);
 				$this->word->setHashFunction('');
 				// Get an instance of the word repository
-				$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-				$wordRepository = $objectManager->get(WordRepository::class);
+				$wordRepository = GeneralUtility::makeInstance(WordRepository::class);
 				// Reset the word
 				$wordRepository->setWord($this->word);
 				$string = LocalizationUtility::translate('max_attempts', $this->extensionName);
@@ -201,7 +169,7 @@ class ShowPng implements ViewInterface
 		}
 
 		// Get random word
-		$word = RandomContentUtility::getRandomWord($this->settings['useWordsList'], $this->settings['wordsListLocation'], $this->settings['generateNumbers'], $this->settings['maxWordLength']);
+		$word = RandomContentUtility::getRandomWord($this->settings['useWordsList'], $this->settings['wordsListLocation'], $this->settings['generateNumbers'] ?? 0, $this->settings['maxWordLength']);
 
 		// Save hash of word for comparison
 		// using hash so that if there's an insecurity elsewhere (eg on the form processor),
@@ -214,7 +182,7 @@ class ShowPng implements ViewInterface
 		$this->word->setWordHash(md5($word));
 
 		// We use a simple encrypt to prevent the session from being exposed
-		if ($this->settings['accessibleOutput']) {
+		if ($this->settings['accessibleOutput'] ?? false) {
 			$this->word->setWordCypher(EncryptionUtility::encrypt($word));
 		}
 
@@ -234,6 +202,7 @@ class ShowPng implements ViewInterface
 	/**
 	 * Builds the CAPTCHA image
 	 *
+	 * @param string $word
 	 * @return string GD image identifier of image
 	 */
 	protected function buildImage($word, $width, $height, $backgroundType)
@@ -264,4 +233,32 @@ class ShowPng implements ViewInterface
 		}
 		return $image;
 	}
+
+    /**
+     * Renders a given section.
+     *
+     * @param string $sectionName Name of section to render
+     * @param array $variables The variables to use
+     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @return string rendered template for the section
+     * @throws Exception\InvalidSectionException
+     */
+    public function renderSection($sectionName, array $variables = [], $ignoreUnknown = false)
+    {
+    	return '';
+    }
+
+    /**
+     * Renders a partial.
+     *
+     * @param string $partialName
+     * @param string $sectionName
+     * @param array $variables
+     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @return string
+     */
+    public function renderPartial($partialName, $sectionName, array $variables, $ignoreUnknown = false)
+    {
+    	return '';
+    }
 }

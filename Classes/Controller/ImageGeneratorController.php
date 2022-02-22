@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Controller;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2012-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -55,21 +55,18 @@ class ImageGeneratorController extends ActionController
 	 */
 	protected $wordRepository;
 
-	/**
-	 * Initialize any action
-	 *
-	 * @return void
+ 	/**
+	 * Dependency injection of the Word Repository
+ 	 *
+	 * @param WordRepository $wordRepository
 	 */
-	protected function initializeAction()
+	public function injectWordRepository(WordRepository $wordRepository)
 	{
-		// Get an instance of the word repository
-		$this->wordRepository = $this->objectManager->get(WordRepository::class);
+		$this->wordRepository = $wordRepository;
 	}
 
 	/**
 	 * Show the CAPTCHA image
-	 *
-	 * @return string empty string (image is sent by view)
 	 */
 	public function showAction()
 	{
@@ -78,9 +75,7 @@ class ImageGeneratorController extends ActionController
 		// Which type of hash to use
 		// Store in session so can validate in form processor
 		$word->setHashFunction('md5');
-		$this->view = $this->objectManager->get(ShowPng::class);
-        $this->setViewConfiguration($this->view);
-        $this->view->setControllerContext($this->controllerContext);
+		$this->view = GeneralUtility::makeInstance(ShowPng::class);
 		$this->view->assign('word', $word);
 		// Adjust settings
 		$this->processSettings();
@@ -93,9 +88,6 @@ class ImageGeneratorController extends ActionController
 
 	/**
 	 * Reviews and adjusts plugin settings
-	 *
-	 * @return void
-	 * @api
 	 */
 	protected function processSettings()
 	{
@@ -104,12 +96,12 @@ class ImageGeneratorController extends ActionController
 		// jpg doesn't support transparency (transparent bg option ends up white)
 		// png isn't supported by old browsers (see http://www.libpng.org/pub/png/pngstatus.html)
 		// gif may not be supported by your GD Lib.
-		$this->settings['imageFormat'] = $this->settings['imageFormat'] ? $this->settings['imageFormat'] : 'png';
+		$this->settings['imageFormat'] = (isset($this->settings['imageFormat']) && $this->settings['imageFormat']) ? $this->settings['imageFormat'] : 'png';
 
 		// true = generate pseudo-random string, false = use dictionary
 		// dictionary is easier to recognise
 		// - both for humans and computers, so use random string if you're paranoid.
-		$this->settings['useWordsList'] = $this->settings['useWordsList'] ? true : false;
+		$this->settings['useWordsList'] = (isset($this->settings['useWordsList']) && $this->settings['useWordsList']) ? true : false;
 
 		// if your server is NOT set up to deny web access to files beginning ".ht"
 		// then you should ensure the dictionary file is kept outside the web directory
@@ -118,10 +110,10 @@ class ImageGeneratorController extends ActionController
 		// test your server's config by trying to access the dictionary through a web browser
 		// you should NOT be able to view the contents.
 		// can leave this blank if not using dictionary
-		$this->settings['wordsListLocation'] = \SJBR\SrFreecap\Utility\LocalizationUtility::getWordsListLocation($this->settings['defaultWordsList']);
+		$this->settings['wordsListLocation'] = \SJBR\SrFreecap\Utility\LocalizationUtility::getWordsListLocation($this->settings['defaultWordsList'] ?? '');
 
 		// Used for non-dictionary word generation and to calculate image width
-		$this->settings['maxWordLength'] = $this->settings['maxWordLength'] ? $this->settings['maxWordLength'] : 6;
+		$this->settings['maxWordLength'] = (isset($this->settings['maxWordLength']) && $this->settings['maxWordLength']) ? $this->settings['maxWordLength'] : 6;
 
 		// Maximum times a user can refresh the image
 		// on a 6500 word dictionary, I think 15-50 is enough to not annoy users and make BF unfeasble.
@@ -129,7 +121,7 @@ class ImageGeneratorController extends ActionController
 		// on the other hand, those attempting OCR will find the ability to request new images
 		// very useful; if they can't crack one, just grab an easier target...
 		// for the ultra-paranoid, setting it to <5 will still work for most users
-		$this->settings['maxAttempts'] = $this->settings['maxAttempts'] ? $this->settings['maxAttempts'] : 50;
+		$this->settings['maxAttempts'] = (isset($this->settings['maxAttempts']) && $this->settings['maxAttempts']) ? $this->settings['maxAttempts'] : 50;
 		
 		// List of fonts to use
 		// font size should be around 35 pixels wide for each character.
@@ -141,7 +133,7 @@ class ImageGeneratorController extends ActionController
 		// the fonts included with freeCap *only* include lowercase alphabetic characters
 		// so are not suitable for most other uses
 		// to increase security, you really should add other fonts
-		if ($this->settings['generateNumbers']) {
+		if ($this->settings['generateNumbers'] ?? false) {
 			$this->settings['fontLocations'] = ['EXT:' . $this->extensionKey . '/Resources/Private/Captcha/Fonts/anonymous.gdf'];
 		} else {
 			$this->settings['fontLocations'] = [
@@ -152,7 +144,7 @@ class ImageGeneratorController extends ActionController
 				'EXT:' . $this->extensionKey . '/Resources/Private/Captcha/Fonts/freecap_font5.gdf'
 				];
 		}
-		if ($this->settings['fontFiles']) {
+		if ($this->settings['fontFiles'] ?? false) {
 			$this->settings['fontLocations'] = GeneralUtility::trimExplode(',', $this->settings['fontFiles'], 1);
 		}
 		for ($i = 0; $i < sizeof($this->settings['fontLocations']); $i++) {
@@ -166,7 +158,7 @@ class ImageGeneratorController extends ActionController
 		// Text color
 		// 0 = one random color for all letters
 		// 1 = different random color for each letter
-		if ($this->settings['textColor']) {
+		if ($this->settings['textColor'] ?? false) {
 			$this->settings['textColor'] = 1;
 		} else {
 			$this->settings['textColor'] = 0;
@@ -174,27 +166,27 @@ class ImageGeneratorController extends ActionController
 
 		// Text position
 		$this->settings['textPosition'] = [];
-		$this->settings['textPosition']['horizontal'] = $this->settings['textHorizontalPosition'] ? intval($this->settings['textHorizontalPosition']) : 32;
-		$this->settings['textPosition']['vertical'] = $this->settings['textVerticalPosition'] ? intval($this->settings['textVerticalPosition']) : 15;
+		$this->settings['textPosition']['horizontal'] = isset($this->settings['textHorizontalPosition']) ? (int)$this->settings['textHorizontalPosition'] : 32;
+		$this->settings['textPosition']['vertical'] = isset($this->settings['textVerticalPosition']) ? (int)$this->settings['textVerticalPosition'] : 15;
 		// Text morphing factor
-		$this->settings['morphFactor'] = $this->settings['morphFactor'] ? $this->settings['morphFactor'] : 0;
+		$this->settings['morphFactor'] = (isset($this->settings['morphFactor']) && $this->settings['morphFactor']) ? (int)$this->settings['morphFactor'] : 0;
 		// Limits for text color
 		$this->settings['colorMaximum'] = [];
 		if (isset($this->settings['colorMaximumDarkness'])) {
-			$this->settings['colorMaximum']['darkness'] = intval($this->settings['colorMaximumDarkness']);
+			$this->settings['colorMaximum']['darkness'] = (int)$this->settings['colorMaximumDarkness'];
 		}
 		if (isset($this->settings['colorMaximumLightness'])) {
-			$this->settings['colorMaximum']['lightness'] = intval($this->settings['colorMaximumLightness']);
+			$this->settings['colorMaximum']['lightness'] = (int)$this->settings['colorMaximumLightness'];
 		}
 
 		// Background
 		// Many thanks to http://ocr-research.org.ua and http://sam.zoy.org/pwntcha/ for testing
 		// for jpgs, 'transparent' is white
-		if (!in_array($this->settings['backgroundType'], ['Transparent', 'White with grid', 'White with squiggles', 'Morphed image blocks'])) {
+		if (!isset($this->settings['backgroundType']) || !in_array($this->settings['backgroundType'], ['Transparent', 'White with grid', 'White with squiggles', 'Morphed image blocks'])) {
 			$this->settings['backgroundType'] = 'White with grid';
 		}
 		// Should we blur the background? (looks nicer, makes text easier to read, takes longer)
-		$this->settings['backgroundBlur'] = ($this->settings['backgroundBlur'] || !isset($this->settings['backgroundBlur'])) ? true : false;
+		$this->settings['backgroundBlur'] = ((isset($this->settings['backgroundBlur']) && $this->settings['backgroundBlur']) || !isset($this->settings['backgroundBlur'])) ? true : false;
 		// For background type 'Morphed image blocks', which images should we use?
 		// If you add your own, make sure they're fairly 'busy' images (ie a lot of shapes in them)
 		$this->settings['backgroundImages'] = [
@@ -207,9 +199,9 @@ class ImageGeneratorController extends ActionController
 		// For non-transparent backgrounds only:
 		// if 0, merges CAPTCHA with background
 		// if 1, write CAPTCHA over background
-		$this->settings['mergeWithBackground'] = $this->settings['mergeWithBackground'] ? 0 : 1;
+		$this->settings['mergeWithBackground'] = (isset($this->settings['mergeWithBackground']) && $this->settings['mergeWithBackground']) ? 0 : 1;
 		// Should we morph the background? (recommend yes, but takes a little longer to compute)
-		$this->settings['backgroundMorph'] = $this->settings['backgroundMorph'] ? true : false;
+		$this->settings['backgroundMorph'] = (isset($this->settings['backgroundMorph']) && $this->settings['backgroundMorph']) ? true : false;
 
 		// Read each font and get font character widths
 		$this->settings['fontWidths'] = [];
@@ -222,8 +214,8 @@ class ImageGeneratorController extends ActionController
 		}
 		// Modify image width depending on maximum possible length of word
 		// you shouldn't need to use words > 6 chars in length really.
-		$this->settings['imageWidth'] = ($this->settings['maxWordLength'] * (array_sum($this->settings['fontWidths'])/sizeof($this->settings['fontWidths']))) + (isset($this->settings['imageAdditionalWidth']) ? intval($this->settings['imageAdditionalWidth']) : 40);
-		$this->settings['imageHeight'] = $this->settings['imageHeight'] ? $this->settings['imageHeight'] : 90;
+		$this->settings['imageWidth'] = ($this->settings['maxWordLength'] * (array_sum($this->settings['fontWidths'])/sizeof($this->settings['fontWidths']))) + (isset($this->settings['imageAdditionalWidth']) ? (int)$this->settings['imageAdditionalWidth'] : 40);
+		$this->settings['imageHeight'] = (isset($this->settings['imageHeight']) && $this->settings['imageHeight']) ? (int)$this->settings['imageHeight'] : 90;
 
 		// Try to avoid the 'free p*rn' method of CAPTCHA circumvention
 		// see www.wikipedia.com/captcha for more info
@@ -231,12 +223,12 @@ class ImageGeneratorController extends ActionController
 		// or more simply:
 		// "for use only on example.org";
 		// reword or add lines as you please
-		$this->settings['siteTag'] = $this->settings['siteTag'] ? explode('|', LocalizationUtility::translate('site_tag', $this->extensionName, [isset($this->settings['siteTagDomain']) ? $this->settings['siteTagDomain'] : 'example.org'])) : [];
+		$this->settings['siteTag'] = (isset($this->settings['siteTag']) && $this->settings['siteTag']) ? explode('|', LocalizationUtility::translate('site_tag', $this->extensionName, [(isset($this->settings['siteTagDomain']) && $this->settings['siteTagDomain']) ? $this->settings['siteTagDomain'] : 'example.org'])) : [];
 
 		// where to write the above:
 		// 0=top
 		// 1=bottom
 		// 2=both
-		$this->settings['siteTagPosition'] = isset($this->settings['siteTagPosition']) ? $this->settings['siteTagPosition'] : 1;
+		$this->settings['siteTagPosition'] = isset($this->settings['siteTagPosition']) ? (int)$this->settings['siteTagPosition'] : 1;
 	}
 }

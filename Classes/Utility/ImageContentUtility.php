@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Utility;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2012-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -195,7 +195,7 @@ class ImageContentUtility {
 	 * @param boolean $blurBackground: if TRUE, the background will be blurred
 	 * @return string GD image identifier of noisy background
 	 */
-	public static function generateNoisyBackground($width, $height, $word, $backgroundType, $backgroundImages = array(), $morphBackground = TRUE, $blurBackground = TRUE)
+	public static function generateNoisyBackground($width, $height, $word, $backgroundType, $backgroundImages = array(), $morphBackground = true, $blurBackground = true)
 	{
 		$image = ImageCreateTrueColor($width, $height);
 		if ($backgroundType != self::BACKGROUND_TYPE_TRANSPARENT) {

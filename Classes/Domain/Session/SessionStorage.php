@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\Domain\Session;
 /*
  *  Copyright notice
  *
- *  (c) 2012-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2012-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -27,8 +27,11 @@ namespace SJBR\SrFreecap\Domain\Session;
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use TYPO3\CMS\Core\Session\UserSession;
+use TYPO3\CMS\Core\Session\UserSessionManager;
 use TYPO3\CMS\Core\Session\Backend\Exception\SessionNotFoundException;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 
 /**
  * Session storage
@@ -44,7 +47,7 @@ class SessionStorage implements SingletonInterface
 	 */
 	public function restoreFromSession()
 	{
-		$sessionData = $this->getFrontendUser()->getKey('ses', self::SESSIONNAMESPACE);
+		$sessionData = $this->getUser()->getSessionData(self::SESSIONNAMESPACE);
 		return unserialize($sessionData);
 	}
  
@@ -52,37 +55,36 @@ class SessionStorage implements SingletonInterface
 	 * Writes an object into the PHP session
 	 *
 	 * @param $object any serializable object to store into the session
-	 * @return \SJBR\SrFreecap\Domain\Session\SessionStorage
+	 * @return SessionStorage
 	 */
 	public function writeToSession($object)
 	{
 		$sessionData = serialize($object);
-		$this->getFrontendUser()->setAndSaveSessionData(self::SESSIONNAMESPACE, $sessionData);
+		$this->getUser()->setAndSaveSessionData(self::SESSIONNAMESPACE, $sessionData);
 		return $this;
 	}
  
 	/**
 	 * Cleans up the session: removes the stored object from the PHP session
 	 *
-	 * @return \SJBR\SrFreecap\Domain\Session\SessionStorage
+	 * @return SessionStorage
 	 */
 	public function cleanUpSession()
 	{
-		$this->getFrontendUser()->setAndSaveSessionData(self::SESSIONNAMESPACE, null);
+		$this->getUser()->setAndSaveSessionData(self::SESSIONNAMESPACE, null);
 		return $this;
 	}
 
 	/**
-	 * Gets a frontend user from TSFE->fe_user
+	 * Gets a frontend user session
 	 *
-	 * @return	\TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication	The current frontend user object
-	 * @throws	SessionNotFoundException
+	 * @return User The current frontend user object
 	 */
-	protected function getFrontendUser()
+	protected function getUser() : FrontendUserAuthentication
 	{
-		if ($GLOBALS ['TSFE']->fe_user) {
-			return $GLOBALS ['TSFE']->fe_user;
+		if (!isset($GLOBALS['TSFE']) || !$GLOBALS['TSFE']->fe_user) {
+			throw new SessionNotFoundException('No frontend user found in session!');
 		}
-		throw new SessionNotFoundException('No frontend user found in session!');
+		return $GLOBALS['TSFE']->fe_user;
 	}
 }

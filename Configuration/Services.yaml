@@ -7,3 +7,7 @@ services:
 
   SJBR\SrFreecap\:
     resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+
+  SJBR\SrFreecap\Configuration\ConfigurationHelper:
+    public: true

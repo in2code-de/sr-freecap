@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\ViewHelpers;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2020 Stanislas Rolland <typo32020(arobas)sjbr.ca>
+ *  (c) 2013-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -34,7 +34,6 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 
@@ -62,11 +61,36 @@ class ImageViewHelper extends AbstractTagBasedViewHelper
 
 	/**
 	 * @param ConfigurationManagerInterface $configurationManager
-	 * @return void
 	 */
 	public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
 	{
 		$this->configurationManager = $configurationManager;
+	}
+
+	/**
+	 * @var PageRenderer
+	 */
+	protected $pageRenderer;
+
+	/**
+	 * @param PageRenderer $pageRenderer
+	 */
+	public function injectPageRenderer(PageRenderer $pageRenderer)
+	{
+		$this->pageRenderer = $pageRenderer;
+	}
+
+	/**
+	 * @var Context
+	 */
+	protected $context;
+
+	/**
+	 * @param Context $context
+	 */
+	public function injectContext(Context $context)
+	{
+		$this->context = $context;
 	}
 
 	public function initializeArguments()
@@ -91,21 +115,18 @@ class ImageViewHelper extends AbstractTagBasedViewHelper
 		$value = '';
 
 		// Include the required JavaScript
-		$pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-		$pageRenderer->addJsFooterFile(PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath($this->extensionKey)) . 'Resources/Public/JavaScript/freeCap.js');
+		$this->pageRenderer->addJsFooterFile(PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath($this->extensionKey)) . 'Resources/Public/JavaScript/freeCap.js');
 
 		// Disable caching
 		$this->getTypoScriptFrontendController()->no_cache = true;
 
 		// Get the translation view helper
-		$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-		$translator = $objectManager->get(TranslateViewHelper::class);
+		$translator = GeneralUtility::makeInstance(TranslateViewHelper::class);
 
 		// Generate the image url
-		$fakeId = GeneralUtility::shortMD5(uniqid (rand()),5);
+		$fakeId = substr(md5(uniqid(rand())), 0, 5);
 		$siteURL = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-		$context = GeneralUtility::makeInstance(Context::class);
-		$languageAspect = $context->getAspect('language');
+		$languageAspect = $this->context->getAspect('language');
 		$urlParams = [
 			'eIDSR' => 'sr_freecap_EidDispatcher',
 			'id' => $this->getTypoScriptFrontendController()->id,

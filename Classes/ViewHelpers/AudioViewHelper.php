@@ -4,7 +4,7 @@ namespace SJBR\SrFreecap\ViewHelpers;
 /*
  *  Copyright notice
  *
- *  (c) 2013-2021 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
+ *  (c) 2013-2022 Stanislas Rolland <typo3AAAA(arobas)sjbr.ca>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -32,7 +32,6 @@ use TYPO3\CMS\Core\Session\Backend\Exception\SessionNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 
@@ -62,6 +61,19 @@ class AudioViewHelper extends AbstractTagBasedViewHelper
 		$this->configurationManager = $configurationManager;
 	}
 
+	/**
+	 * @var Context
+	 */
+	protected $context;
+
+	/**
+	 * @param Context $context
+	 */
+	public function injectContext(Context $context)
+	{
+		$this->context = $context;
+	}
+
 	public function initializeArguments()
 	{
 		parent::initializeArguments();
@@ -84,27 +96,25 @@ class AudioViewHelper extends AbstractTagBasedViewHelper
 		// Get the plugin configuration
 		$settings = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS, $this->extensionName, $this->pluginName);
 		// Get the translation view helper
-		$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-		$translator = $objectManager->get(TranslateViewHelper::class);
+		$translator = GeneralUtility::makeInstance(TranslateViewHelper::class);
 		// Generate the icon
-		if ($settings['accessibleOutput'] && (int)$GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem']) {
-			$context = GeneralUtility::makeInstance(Context::class);
-			$languageAspect = $context->getAspect('language');
-			$fakeId = GeneralUtility::shortMD5(uniqid (rand()),5);
+		if (($settings['accessibleOutput'] ?? false) && ($GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem'] ?? false)) {
+			$languageAspect = $this->context->getAspect('language');
+			$fakeId = substr(md5(uniqid(rand())), 0, 5);
 			$siteURL = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
 			$urlParams = [
 				'eIDSR' => 'sr_freecap_EidDispatcher',
 				'id' => $GLOBALS['TSFE']->id,
 				'pluginName' => 'AudioPlayer',
 				'actionName' => 'play',
-				'formatName' => $browerIsIE8 ? 'mp3' : 'wav',
+				'formatName' => 'wav',
 				'L' => $languageAspect->getId()
 			];
 			if ($this->getTypoScriptFrontendController()->MP) {
 				$urlParams['MP'] = $this->getTypoScriptFrontendController()->MP;
 			}
 			$audioURL = $siteURL . 'index.php?' . ltrim(GeneralUtility::implodeArrayForUrl('', $urlParams), '&');
-			if ($settings['accessibleOutputImage']) {
+			if (isset($settings['accessibleOutputImage']) && $settings['accessibleOutputImage']) {
 				$value = '<input type="image" alt="' . $translator->render('click_here_accessible') . '"'
 					. ' title="' . $translator->render('click_here_accessible') . '"'
 					. ' src="' . $siteURL . PathUtility::stripPathSitePrefix(GeneralUtility::getFileAbsFileName($settings['accessibleOutputImage'])) . '"'
