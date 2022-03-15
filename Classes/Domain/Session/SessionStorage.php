@@ -48,6 +48,9 @@ class SessionStorage implements SingletonInterface
 	public function restoreFromSession()
 	{
 		$sessionData = $this->getUser()->getSessionData(self::SESSIONNAMESPACE);
+		if ($sessionData === null) {
+			return null;
+		}
 		return unserialize($sessionData);
 	}
  

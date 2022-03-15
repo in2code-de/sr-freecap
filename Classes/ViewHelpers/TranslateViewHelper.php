@@ -124,6 +124,7 @@ class TranslateViewHelper extends AbstractViewHelper
 		if ($this->hasArgument('key')) {
 			$key = $this->arguments['key'];
 		}
+		$value = null;
 		$default = $this->hasArgument('default') ? $this->arguments['default'] : '';
 		$htmlEscape = $this->hasArgument('htmlEscape') ? $this->arguments['htmlEscape'] : false;
 		$arguments = $this->hasArgument('arguments') ? $this->arguments['arguments'] : [];
