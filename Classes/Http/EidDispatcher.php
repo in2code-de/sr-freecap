@@ -114,19 +114,14 @@ class EidDispatcher
 		$configuration['pluginName'] = $this->pluginName;
 		$bootstrap->initialize($configuration);
 		$request = $this->buildRequest();
-		/*try {
-if (isset($GLOBALS['BE_USER'])) {
-	$GLOBALS['BE_USER']->writelog(3, 1, 0, 0, '[SrFreecap]-avant: ' . serialize($GLOBALS['TSFE']->fe_user->getSession()), [$GLOBALS['BE_USER']->user['username']]);
-}*/
-			$response = GeneralUtility::makeInstance(Dispatcher::class)->dispatch($request);
-/*if (isset($GLOBALS['BE_USER'])) {
-	$GLOBALS['BE_USER']->writelog(3, 1, 0, 0, '[SrFreecap]-apres: ' . serialize($GLOBALS['TSFE']->fe_user->getSession()), [$GLOBALS['BE_USER']->user['username']]);
-}
-		} catch (\Exception $e) {
-			throw new BadRequestException('An argument is missing or invalid', 1394587024);
-		}*/
-		// Output was already sent
-		return new NullResponse();
+
+        try {
+            $response = GeneralUtility::makeInstance(Dispatcher::class)->dispatch($request);
+        } catch (\Exception $e) {
+            throw new BadRequestException('An argument is missing or invalid', 1394587024);
+        }
+
+		return $response;
 	}
 
 	/**
